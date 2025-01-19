@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <StartupObject>poetrain.Program</StartupObject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="sources\ipaConfig.xml" />
+    <None Remove="sources\localizations\en_US.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="sources\ipaConfig.xml" />
+    <EmbeddedResource Include="sources\localizations\en_US.xml" />
+  </ItemGroup>
+
+</Project>

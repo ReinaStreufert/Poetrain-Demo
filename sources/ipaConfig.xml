@@ -1,0 +1,70 @@
+﻿<ipaConfig>
+  <scoring>
+    <stress importance="1"/>
+    <consonant importance="2"/>
+    <vowel importance="5"/>
+  </scoring>
+  <notation>
+    <transcriptionQuote>/</transcriptionQuote>
+    <pronnunciationBreak>,</pronnunciationBreak>
+    <primaryStress>ˈ</primaryStress>
+    <secondaryStress>ˌ</secondaryStress>
+  </notation>
+  <localization code="en_US" name="English (US)" dictSrcName="localizations/en_US.xml">
+    <consonant name="(m)y" ipa="m" slantCoords="0,0,0 0,0,1"/>
+    <consonant name="ca(n)" ipa="n" slantCoords="2,0,0 2,0,1"/>
+    <consonant name="si(ng)" ipa="ŋ" slantCoords="5,0,0 5,0,1"/>
+
+    <consonant name="(p)ie" ipa="p" slantCoords="0,1,0"/>
+    <consonant name="(t)ie" ipa="t" slantCoords="2,1,0"/>
+    <consonant name="(ch)ina" ipa="tʃ" slantCoords="3,1,0"/>
+    <consonant name="s(k)y" ipa="k" slantCoords="5,1,0"/>
+
+    <consonant name="(b)uy" ipa="b" slantCoords="0,1,1"/>
+    <consonant name="(d)ye" ipa="d" slantCoords="2,1,1"/>
+    <consonant name="(j)ust" ipa="dʒ" slantCoords="3,1,1"/>
+    <consonant name="(g)uy" ipa="g" slantCoords="5,1,1"/>
+
+    <consonant name="(f)ind" ipa="f" slantCoords="0,2,0"/>
+    <consonant name="pa(th)" ipa="θ" slantCoords="1,2,0"/>
+    <consonant name="(s)igh" ipa="s" slantCoords="2,2,0"/>
+    <consonant name="(sh)y" ipa="ʃ" slantCoords="3,2,0"/>
+    <consonant name="lo(ch)s" ipa="x" slantCoords="5,2,0"/>
+
+    <consonant name="lea(v)e" ipa="v" slantCoords="0,2,1"/>
+    <consonant name="fa(th)er" ipa="ð" slantCoords="1,2,1"/>
+    <consonant name="(z)oo" ipa="z" slantCoords="2,2,1"/>
+    <consonant name="bei(g)e" ipa="ʒ" slantCoords="3,2,1"/>
+
+    <consonant name="(h)igh" ipa="h" slantCoords="6,2,0 6,2,1"/>
+
+    <consonant name="(w)ine" ipa="w" slantCoords="0,3,0 0,3,1 5,3,0 5,3,1"/>
+    <consonant name="(l)ie" ipa="ɫ" slantCoords="2,3,0 2,3,1"/>
+    <consonant name="(r)ing" ipa="ɹ" slantCoords="3,3,0 3,3,1"/>
+    <consonant name="(y)es" ipa="j" slantCoords="4,3,0 4,3,1"/>
+
+    <monopthong name="k(i)t" ipa="ɪ" slantCoords="0,0,0"/>
+    <monopthong name="fl(ee)ce" ipa="i" slantCoords="0,0,1"/>
+    <monopthong name="f(oo)t" ipa="ʊ" slantCoords="2,0,0"/>
+    <monopthong name="g(oo)se" ipa="u" slantCoords="2,0,1"/>
+    
+    <monopthong name="dr(e)ss" ipa="ɛ" slantCoords="0,1,0"/>
+    <monopthong name="f(a)ce" ipa="eɪ" slantCoords="0,1,1"/>
+    <monopthong name="str(u)t" ipa="ə" slantCoords="1,1,0"/>
+    <monopthong name="n(ur)se" ipa="ɝ" slantCoords="1,1,1"/>
+    <monopthong name="g(oa)t" ipa="oʊ" slantCoords="2,1,1"/>
+    
+    <monopthong name="tr(a)p" ipa="æ" slantCoords="0,2,0"/>
+    <monopthong name="open-front" ipa="a" slantCoords="1,2,0"/>
+    <monopthong name="l(o)t" ipa="ɑ" slantCoords="1,2,1"/>
+    <monopthong name="th(ou)ght" ipa="ɔ" slantCoords="2,2,1"/>
+    
+    <dipthong name="pr(i)ce" ipa="aɪ" start="open-front" end="fl(ee)ce"/>
+    <dipthong name="ch(oi)ce" ipa="ɔɪ" start="th(ou)ght" end="k(i)t"/>
+    <dipthong name="m(ou)th" ipa="aʊ" start="open-front" end="f(oo)t"/>
+    <dipthong name="st(ar)t" ipa="ɑɹ" start="l(o)t" end="n(ur)se"/>
+    <dipthong name="n(or)th" ipa="ɔɹ" start="th(ou)ght" end="n(ur)se"/>
+    <dipthong name="n(ear)" ipa="ɪɹ" start="fl(ee)ce" end="n(ur)se"/>
+    <dipthong name="f(air)" ipa="ɛɹ" start="dr(e)ss" end="n(ur)se"/>
+  </localization>
+</ipaConfig>
