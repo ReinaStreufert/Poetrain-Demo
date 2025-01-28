@@ -8,16 +8,12 @@ namespace poetrain.Phonology
 {
     public class RhymeScore
     {
-        public IPronnunciation MatchedPronnunciationA { get; }
-        public IPronnunciation MatchedPronnunciationB { get; }
-        public int SyllableCount { get; }
+        public IPronnunciation[] Pronnunciations { get; }
         public float Value { get; }
 
-        public RhymeScore(IPronnunciation matchedPronnunciationA, IPronnunciation matchedPronnunciationB, int syllableCount, float value)
+        public RhymeScore(float value, params IPronnunciation[] pronnunciations)
         {
-            MatchedPronnunciationA = matchedPronnunciationA;
-            MatchedPronnunciationB = matchedPronnunciationB;
-            SyllableCount = syllableCount;
+            Pronnunciations = pronnunciations;
             Value = value;
         }
     }

@@ -15,7 +15,7 @@ namespace poetrain.Phonology
             _Provider = provider;
         }
 
-        private List<ISyllable[]> _Pronnunciations = new List<ISyllable[]>();
+        private List<PronnunciationData> _Pronnunciations = new List<PronnunciationData>();
         private IPhonologyProvider _Provider;
 
         public void AddPronnunciationsFromString(string ipaString, ILocalizationPhonology alphabet)

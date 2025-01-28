@@ -14,7 +14,7 @@ namespace poetrain.UI
         private IPhoneticDictionary _Dict;
         private RhymeInput _Input1;
         private RhymeInput _Input2;
-        private Label _Score = FormHelpers.CreateLabel(24);
+        private Label _Score = FormHelpers.CreateLabel(24f);
 
         public DemoWindow(IPhoneticDictionary dict)
         {
@@ -67,10 +67,11 @@ namespace poetrain.UI
 
             public int AddToForm(Form window, int xMargin, int yOffset)
             {
+                var fontHeight = FormHelpers.GetFontHeight(12f);
                 _Caption.Location = new Point(xMargin, yOffset);
-                yOffset += _Caption.Height;
+                yOffset += fontHeight;
                 _TextBox.Location = new Point(xMargin, yOffset);
-                _TextBox.Size = new Size(_Window.ClientSize.Width - (xMargin * 2), _Caption.Height /*est. hopefully works*/);
+                _TextBox.Size = new Size(_Window.ClientSize.Width - (xMargin * 2), fontHeight);
                 yOffset += _TextBox.Height;
                 window.Controls.Add(_Caption);
                 window.Controls.Add(_TextBox);

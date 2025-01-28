@@ -38,9 +38,9 @@ namespace poetrain.Phonology
             return float.IsNaN(avg) ? 1f : avg;
         }
 
-        public static ISyllable[] ToSyllableArray(this IPronnunciation pronnunciation)
+        public static ISemiSyllable[] ToPhonymArray(this IPronnunciation pronnunciation)
         {
-            var arr = new ISyllable[pronnunciation.SyllableCount];
+            var arr = new ISemiSyllable[pronnunciation.PhonymCount];
             for (int i = 0; i < arr.Length; i++)
                 arr[i] = pronnunciation[i];
             return arr;

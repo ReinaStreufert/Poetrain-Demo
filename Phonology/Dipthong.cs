@@ -26,6 +26,8 @@ namespace poetrain.Phonology
 
         public float ScoreRhyme(ISemiSyllable semiSyllable)
         {
+            if (semiSyllable == this)
+                return 1f;
             var score1 = _StartPhonym.ScoreRhyme(semiSyllable);
             var score2 = _EndPhonym.ScoreRhyme(semiSyllable);
             return (score1 + score2) / 2f;

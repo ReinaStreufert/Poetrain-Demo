@@ -84,59 +84,29 @@ namespace poetrain.Phonology
             var provider = a.Provider;
             if (provider != b.Provider)
                 throw new ArgumentException("The transcriptions are not from the same providers");
-            var pronnunciationTotal = a.PronnunciationCount * b.PronnunciationCount;
-            ISyllable[][] pronnunciationsArr = new ISyllable[pronnunciationTotal][];
-            for (int aIndex = 0; aIndex < a.PronnunciationCount; aIndex++)
-            {
-                for (int bIndex = 0; bIndex < b.PronnunciationCount; bIndex++)
-                {
-                    var i = aIndex * b.PronnunciationCount + bIndex;
-                    var aPronnunciation = a[aIndex].ToSyllableArray();
-                    var bPronnunciation = b[bIndex].ToSyllableArray();
-                    pronnunciationsArr[i] = ConcatSyllables(aPronnunciation, bPronnunciation);
-                }
-            }
-            return new Transcription(provider, $"{a.Word} {b.Word}", pronnunciationsArr);
-        }
-
-        private static ISyllable[] ConcatSyllables(ISyllable[] seqA, ISyllable[] seqB)
-        {
-            var aLastSyll = seqA[seqA.Length - 1];
-            var bFirstSyll = seqB[0];
-            var linkfixConsonants = Concat(
-                aLastSyll.PostfixConsonants,
-                bFirstSyll.PrefixConsonants);
-            seqA[seqA.Length - 1] = new Syllable(aLastSyll.Provider, aLastSyll.Stress, aLastSyll.PrefixConsonants, linkfixConsonants, aLastSyll.VowelBridge);
-            seqB[0] = new Syllable(bFirstSyll.Provider, bFirstSyll.Stress, linkfixConsonants, bFirstSyll.PostfixConsonants, bFirstSyll.VowelBridge);
-            return Concat(seqA, seqB);
-        }
-
-        private static T[] Concat<T>(T[] a, T[] b)
-        {
-            var result = new T[a.Length + b.Length];
-            for (int i = 0; i < a.Length; i++)
-                result[i] = a[i];
-            for (int i = 0; i < b.Length; i++)
-                result[a.Length + i] = b[i];
-            return result;
+            var aPronnunciations = a
+                .Select(p => p.ToPronnunciationData());
+            var bPronnunciations = b
+                .Select(p => p.ToPronnunciationData());
+            var concatPronnunciations = aPronnunciations
+                .SelectMany(x => bPronnunciations
+                .Select(y => PronnunciationData.Concat(x, y)));
+            return new Transcription(provider, $"{a.Word} {b.Word}", concatPronnunciations);
         }
     }
 
-    public interface IPronnunciation : IEnumerable<ISyllable>
+    public interface IPronnunciation : IEnumerable<ISemiSyllable>
     {
         public IPhonologyProvider Provider { get; }
         public ITranscription Transcription { get; }
-        public int SyllableCount { get; }
-        public ISyllable this[int index] { get; }
-    }
 
-    public interface ISyllable
-    {
-        public IPhonologyProvider Provider { get; }
-        public ISemiSyllable[] PrefixConsonants { get; }
-        public ISemiSyllable[] PostfixConsonants { get; }
-        public ISemiSyllable VowelBridge { get; }
-        public SyllableStress Stress { get; }
+        public int PhonymCount { get; }
+        public int SyllableCount { get; }
+        public ISemiSyllable this[int phonymIndex] { get; }
+        public SyllableStress GetSyllableStress(int syllableIndex);
+        public ISemiSyllable GetVowelBridge(int syllableIndex);
+        public ReadOnlySpan<ISemiSyllable> GetConsonantRange(int consonantRangeIndex);
+        public PronnunciationData ToPronnunciationData();
     }
 
     public interface ISemiSyllable

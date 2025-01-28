@@ -31,69 +31,71 @@ namespace poetrain.Phonology
             if (provider != b.Provider)
                 throw new InvalidOperationException("Pronnunciations are not comparable");
             var scoreAggr = provider.ScoreAggregation;
-            var syllableCount = Math.Min(a.SyllableCount, b.SyllableCount);
-            var aOffset = a.SyllableCount - syllableCount;
-            var bOffset = b.SyllableCount - syllableCount;
+            var vowelScore = a.ScoreVowels(b);
+            var consonantScore = a.ScoreConsonants(b);
+            var stressScore = a.ScoreStresses(b);
+            var score = scoreAggr.AggregateScores(stressScore, vowelScore, consonantScore);
+            return new RhymeScore(score, a, b);
+        }
+
+        private static float ScoreConsonants(this IPronnunciation a, IPronnunciation b)
+        {
+            if (a.SyllableCount == 0 || b.SyllableCount == 0)
+                return 0f;
+            var larger = a.SyllableCount > b.SyllableCount ? a : b;
+            var alt = a.SyllableCount > b.SyllableCount ? b : a;
+            var rangeCount = larger.SyllableCount + 1;
+            var altOffset = larger.SyllableCount - alt.SyllableCount;
             var sum = 0f;
-            for (int i = 0; i < syllableCount; i++)
+            for (int i = altOffset; i < rangeCount; i++)
             {
-                var aSyll = a[aOffset + i];
-                var bSyll = b[bOffset + i];
-                var score = aSyll.ScoreRhyme(bSyll, scoreAggr);
-                sum += score;
+                var range = larger.GetConsonantRange(i);
+                var closest = ScoreRhyme(range, alt.GetConsonantRange(i - altOffset));
+                var past = ScoreRhyme(range, alt.GetConsonantRange(i - altOffset - 1));
+                var future = ScoreRhyme(range, alt.GetConsonantRange(i - altOffset + 1));
+                sum += Math.Max(closest, 0.5f * Math.Max(past, future));
             }
-            return new RhymeScore(a, b, syllableCount, sum / syllableCount);
+            return rangeCount > 0 ? sum / rangeCount : 1f;
         }
 
-        public static float ScoreRhyme(this ISyllable a, ISyllable b, ScoreAggregationWeights aggrWeights)
+        private static float ScoreVowels(this IPronnunciation a, IPronnunciation b)
         {
-            var vowelScore = a.VowelBridge.ScoreRhyme(b.VowelBridge);
-            var stressScore = 1f - (Math.Abs((int)a.Stress - (int)b.Stress) / (float)SyllableStress.Primary);
-            var consonantScore = GetConsonantScore(a, b);
-            return aggrWeights.AggregateScores(stressScore, vowelScore, consonantScore);
+            var larger = a.SyllableCount > b.SyllableCount ? a : b;
+            var alt = a.SyllableCount > b.SyllableCount ? b : a;
+            var vowelCount = larger.SyllableCount;
+            var altOffset = larger.SyllableCount - alt.SyllableCount;
+            var sum = 0f;
+            for (int i = altOffset; i < vowelCount; i++)
+                sum += larger.GetVowelBridge(i).ScoreRhyme(alt.GetVowelBridge(i - altOffset));
+            return vowelCount > 0 ? sum / vowelCount : 1f;
         }
 
-        private static float GetConsonantScore(ISyllable a, ISyllable b)
+        private static float ScoreStresses(this IPronnunciation a, IPronnunciation b)
         {
-            var perpinducularScore = AggregateSides(s => GetPerpindiculars(a, b, s));
-            var diagonalScore = AggregateSides(s => GetDiagonals(a, b, s)) / 2f;
-            return Math.Min(1f, perpinducularScore + diagonalScore);
+            var larger = a.SyllableCount > b.SyllableCount ? a : b;
+            var alt = a.SyllableCount > b.SyllableCount ? b : a;
+            var stressCount = larger.SyllableCount;
+            var altOffset = larger.SyllableCount - alt.SyllableCount;
+            var sum = 0f;
+            for (int i = altOffset; i < stressCount; i++)
+                sum += 1f - (Math.Abs(larger.GetSyllableStress(i) - alt.GetSyllableStress(i - altOffset)) / (float)SyllableStress.Primary);
+            return stressCount > 0 ? sum / stressCount : 1f;
         }
 
-        private static (ISemiSyllable[] a, ISemiSyllable[]) GetPerpindiculars(ISyllable a, ISyllable b, ConsonantSide side)
+        private static float ScoreRhyme(ReadOnlySpan<ISemiSyllable> a, ReadOnlySpan<ISemiSyllable> b)
         {
-            return side switch
+            var larger = a.Length > b.Length ? a : b;
+            var alt = a.Length > b.Length ? b : a;
+            var sum = 0f;
+            for (int i = 0; i < larger.Length; i++)
             {
-                ConsonantSide.Prefixed => (a.PrefixConsonants, b.PrefixConsonants),
-                ConsonantSide.Postfixed => (a.PostfixConsonants, b.PostfixConsonants),
-                _ => throw new NotImplementedException()
-            };
-        }
-
-        private static (ISemiSyllable[], ISemiSyllable[]) GetDiagonals(ISyllable a, ISyllable b, ConsonantSide side)
-        {
-            return side switch
-            {
-                ConsonantSide.Prefixed => (a.PrefixConsonants, DuplicateReverse(b.PostfixConsonants)),
-                ConsonantSide.Postfixed => (b.PrefixConsonants, DuplicateReverse(a.PostfixConsonants)),
-                _ => throw new NotImplementedException()
-            };
-        }
-
-        private static float AggregateSides(Func<ConsonantSide, (ISemiSyllable[] a, ISemiSyllable[] b)> pairFunc)
-        {
-            var prefixScore = PhonologyHelpers.ScoreSequence((ISemiSyllable x, ISemiSyllable y) => x.ScoreRhyme(y), pairFunc(ConsonantSide.Prefixed));
-            var postfixScore = PhonologyHelpers.ScoreSequence((ISemiSyllable x, ISemiSyllable y) => x.ScoreRhyme(y), pairFunc(ConsonantSide.Postfixed));
-            return (prefixScore + postfixScore) / 2f;
-        }
-
-        private static T[] DuplicateReverse<T>(T[] array)
-        {
-            var reversed = new T[array.Length];
-            var lastIndex = array.Length - 1;
-            for (int i = 0; i < array.Length; i++)
-                reversed[lastIndex - i] = array[i];
-            return reversed;
+                var phonym = larger[i];
+                var largestMatch = 0f;
+                for (int j = 0; j < alt.Length; j++)
+                    largestMatch = Math.Max(largestMatch, phonym.ScoreRhyme(alt[j]));
+                sum += largestMatch;
+            }
+            return larger.Length > 0 ? sum / larger.Length : 1f;
         }
 
         private enum ConsonantSide
