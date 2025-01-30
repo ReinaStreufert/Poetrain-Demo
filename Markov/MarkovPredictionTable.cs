@@ -10,16 +10,19 @@ namespace poetrain.Markov
     public class MarkovPredictionTable : IPredictionTable
     {
         public int WindowLength => _WindowLen;
-        public IEnumerable<IWord> Words => _Words.Values;
+        public IEnumerable<IWord> Words => _Words;
 
-        public MarkovPredictionTable(MarkovPredictionNode rootNode, int winowLen)
+        public MarkovPredictionTable(MarkovPredictionNode rootNode, IWord[] words, int winowLen)
         {
             _RootNode = rootNode;
             _WindowLen = winowLen;
+            _Words = words;
+            _WordDict = _Words.ToImmutableDictionary(w => w.Text);
         }
 
         private MarkovPredictionNode _RootNode;
-        private ImmutableDictionary<string, IWord> _Words;
+        private ImmutableDictionary<string, IWord> _WordDict;
+        private IWord[] _Words;
         private readonly int _WindowLen;
 
         public IEnumerable<KeyValuePair<IWord, float>> PredictNext(params IWord[] window) // window is newest-first, so after "how are you" with a window size of 2 you have ["you", "are"]
@@ -41,7 +44,17 @@ namespace poetrain.Markov
 
         public IWord? TryGetWord(string text)
         {
-            return _Words.TryGetValue(text, out var word) ? word : null;
+            return _WordDict.TryGetValue(text, out var word) ? word : null;
+        }
+
+        public IWord GetWord(int index)
+        {
+            return _Words[index];
+        }
+
+        public MarkovPredictionNode GetRootNode()
+        {
+            return _RootNode;
         }
     }
 
@@ -54,6 +67,18 @@ namespace poetrain.Markov
         {
             NextWordProbabilities = nextWordProbabilities.ToImmutableDictionary();
             BackWindowNodes = backWindowNodes.ToImmutableDictionary();
+        }
+    }
+
+    public class Word : IWord
+    {
+        public string Text { get; }
+        public int Id { get; }
+
+        public Word(string text, int id)
+        {
+            Text = text;
+            Id = id;
         }
     }
 }

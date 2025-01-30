@@ -10,12 +10,15 @@ namespace poetrain.Markov
     {
         public int WindowLength { get; }
         public IEnumerable<IWord> Words { get; }
+        public IWord GetWord(int index);
         public IWord? TryGetWord(string text);
-        public IEnumerable<KeyValuePair<IWord, float>> PredictNext(params IWord?[] window);
+        public IEnumerable<KeyValuePair<IWord, float>> PredictNext(params IWord[] window);
+        public MarkovPredictionNode GetRootNode();
     }
 
     public interface IWord
     {
+        public int Id { get; }
         public string Text { get; }
     }
 }

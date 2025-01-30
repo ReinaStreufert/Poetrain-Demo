@@ -15,7 +15,8 @@ namespace poetrain.Markov
             WindowLength = windowLen;
         }
 
-        private Dictionary<string, Word> _Words = new Dictionary<string, Word>();
+        private Dictionary<string, Word> _WordDict = new Dictionary<string, Word>();
+        private List<Word> _WordList = new List<Word>();
         private TableNode _RootNode = new TableNode();
 
         public void Ingest(IEnumerable<string> source)
@@ -52,25 +53,14 @@ namespace poetrain.Markov
 
         private Word GetWord(string text)
         {
-            if (_Words.TryGetValue(text, out var word))
+            if (_WordDict.TryGetValue(text, out var word))
                 return word;
             else
             {
-                var result = new Word(text, _Words.Count);
-                _Words.Add(text, result);
+                var result = new Word(text, _WordList.Count);
+                _WordList.Add(result);
+                _WordDict.Add(text, result);
                 return result;
-            }
-        }
-
-        private class Word : IWord
-        {
-            public string Text { get; }
-            public int Id { get; }
-
-            public Word(string text, int id)
-            {
-                Text = text;
-                Id = id;
             }
         }
 
@@ -114,6 +104,15 @@ namespace poetrain.Markov
                     var backWindow = window.Length > 1 ? window.Slice(1) : ReadOnlySpan<Word>.Empty;
                     backNode.RecordRecursive(backWindow, nextWord);
                 }
+            }
+
+            public MarkovPredictionNode ToMarkovPredictionNode()
+            {
+                var nextWordFreqs = NextWordFrequencies
+                    .Select(p => new KeyValuePair<IWord, float>(p.Key, p.Value.Value / (float)SampleCount));
+                var backWindowNodes = BackWindowNodes
+                    .Select(p => new KeyValuePair<IWord, MarkovPredictionNode>(p.Key, p.Value.ToMarkovPredictionNode())); // i like recursion
+                return new MarkovPredictionNode(nextWordFreqs, backWindowNodes);
             }
         }
 
