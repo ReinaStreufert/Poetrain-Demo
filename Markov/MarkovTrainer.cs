@@ -48,7 +48,7 @@ namespace poetrain.Markov
 
         public IPredictionTable ToPredictionTable()
         {
-            throw new NotImplementedException();
+            return new MarkovPredictionTable(_RootNode.ToMarkovPredictionNode(), _WordList.ToArray(), WindowLength);
         }
 
         private Word GetWord(string text)

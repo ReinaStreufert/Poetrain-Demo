@@ -26,6 +26,8 @@ namespace poetrain.Phonology
         private Dictionary<string, ITranscription> _TranscriptionCache = new Dictionary<string, ITranscription>();
         private TranscriptionBuilder _TranscriptionBuilder;
 
+        public bool ContainsWord(string word) => _RawTranscriptions.ContainsKey(word);
+
         public ITranscription? TryGetTranscription(string word)
         {
             if (_TranscriptionCache.TryGetValue(word, out var result))

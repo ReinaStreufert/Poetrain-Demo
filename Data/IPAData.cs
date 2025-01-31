@@ -12,30 +12,14 @@ namespace poetrain.Data
 {
     public static class IPAData
     {
-        private const string _SourceBaseName = "poetrain.sources";
         private const string _PhonologyDataSource = "ipaConfig.xml";
 
         public static IPAPhonologyData Phonology { get; } = ParsePhonologyData();
 
         public static IPAPhonologyData ParsePhonologyData(string sourceName = _PhonologyDataSource)
         {
-            var src = GetEmbeddedXml(sourceName);
+            var src = EmbeddedSource.GetEmbeddedXml(sourceName);
             return ParsePhonologyData(src);
-        }
-
-        public static XmlDocument GetEmbeddedXml(string sourceName)
-        {
-            var fullSourceName = $"{_SourceBaseName}.{sourceName.Replace('/', '.')}";
-            var assembly = Assembly.GetCallingAssembly();
-            string xml;
-            using (Stream? manifestStream = assembly.GetManifestResourceStream(fullSourceName))
-            using (StreamReader reader = new StreamReader(manifestStream ?? throw new ArgumentException($"parameter '{sourceName}' refers to source {sourceName} which does not exist")))
-            {
-                xml = reader.ReadToEnd();
-            }
-            var xmlDocument = new XmlDocument();
-            xmlDocument.LoadXml(xml);
-            return xmlDocument;
         }
 
         public static IPAPhonologyData ParsePhonologyData(XmlDocument phonologyDataXml)

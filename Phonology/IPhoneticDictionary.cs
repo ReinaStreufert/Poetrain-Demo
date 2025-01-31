@@ -56,6 +56,7 @@ namespace poetrain.Phonology
         public IPALanguage Language { get; }
         public float StressScoreAggregationWeight { get; }
         public IPhonologyProvider Provider { get; }
+        public bool ContainsWord(string word);
         public ITranscription? TryGetTranscription(string word);
     }
 

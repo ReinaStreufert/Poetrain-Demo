@@ -31,7 +31,7 @@ namespace poetrain.Phonology
             var phonology = _PhonologyData.TryGetLocale(language);
             if (phonology == null)
                 return null;
-            var rawTranscriptions = IPAData.ParseRawTranscriptionData(IPAData.GetEmbeddedXml(phonology.DictionarySrcName), language);
+            var rawTranscriptions = IPAData.ParseRawTranscriptionData(EmbeddedSource.GetEmbeddedXml(phonology.DictionarySrcName), language);
             return new PhoneticDictionary(this, phonology, rawTranscriptions);
         }
     }
