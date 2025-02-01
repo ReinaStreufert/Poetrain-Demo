@@ -10,14 +10,15 @@ namespace poetrain.Phonology
     public class Transcription : ITranscription
     {
         public IPhonologyProvider Provider { get; }
+        public IPhoneticDictionary Dictionary { get; }
         public string Word { get; }
         public int PronnunciationCount => _Pronnnunciations.Length;
-
         public IPronnunciation this[int index] => _Pronnnunciations[index];
 
-        public Transcription(IPhonologyProvider provider, string word, IEnumerable<PronnunciationData> pronnunciations)
+        public Transcription(IPhonologyProvider provider, IPhoneticDictionary dictionary, string word, IEnumerable<PronnunciationData> pronnunciations)
         {
             Provider = provider;
+            Dictionary = dictionary;
             Word = word;
             _Pronnnunciations = pronnunciations
                 .Select(d => new Pronnunciation(provider, this, d))
@@ -142,6 +143,23 @@ namespace poetrain.Phonology
 
         private ISemiSyllable[] _Phonyms;
         private SyllableRange[] _SyllableRanges;
+
+        public PronnunciationData Subpronnunciation(int startSyllable, int syllableCount)
+        {
+            var subFirstSyll = _SyllableRanges[startSyllable];
+            var subEndSyll = _SyllableRanges[startSyllable + syllableCount - 1];
+            var phonymArr = new ISemiSyllable[subEndSyll.StartIndex + subEndSyll.TotalCount - subFirstSyll.StartIndex];
+            for (int i = subFirstSyll.StartIndex; i < subEndSyll.StartIndex + subEndSyll.TotalCount; i++)
+                phonymArr[i - subFirstSyll.StartIndex] = _Phonyms[i];
+            var syllRanges = new SyllableRange[syllableCount];
+            for (int i = startSyllable; i < startSyllable + syllableCount; i++)
+            {
+                var syllRange = _SyllableRanges[i];
+                syllRange.StartIndex -= subFirstSyll.StartIndex;
+                syllRanges[i - startSyllable] = syllRange;
+            }
+            return new PronnunciationData(Phonyms, syllRanges);
+        }
 
         public static PronnunciationData Concat(PronnunciationData pronnunc, PronnunciationData concatPronnunc)
         {

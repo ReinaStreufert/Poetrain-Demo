@@ -53,15 +53,16 @@ namespace poetrain.Phonology
 
     public interface IPhoneticDictionary
     {
+        public IPhonologyProvider Provider { get; }
         public IPALanguage Language { get; }
         public float StressScoreAggregationWeight { get; }
-        public IPhonologyProvider Provider { get; }
         public bool ContainsWord(string word);
         public ITranscription? TryGetTranscription(string word);
     }
 
     public interface ITranscription : IEnumerable<IPronnunciation>
     {
+        public IPhoneticDictionary Dictionary { get; }
         public IPhonologyProvider Provider { get; }
         public string Word { get; }
         public int PronnunciationCount { get; }
@@ -80,11 +81,13 @@ namespace poetrain.Phonology
             return current ?? throw new ArgumentException($"{nameof(transcriptions)} is an empty enumeration");
         }
 
-        public static ITranscription Concat(ITranscription a, ITranscription b)
+        public static ITranscription Concat(ITranscription a, ITranscription b, IPhoneticDictionary? dict = null)
         {
             var provider = a.Provider;
             if (provider != b.Provider)
                 throw new ArgumentException("The transcriptions are not from the same providers");
+            if (dict == null)
+                dict = a.Dictionary;
             var aPronnunciations = a
                 .Select(p => p.ToPronnunciationData());
             var bPronnunciations = b
@@ -92,7 +95,7 @@ namespace poetrain.Phonology
             var concatPronnunciations = aPronnunciations
                 .SelectMany(x => bPronnunciations
                 .Select(y => PronnunciationData.Concat(x, y)));
-            return new Transcription(provider, $"{a.Word} {b.Word}", concatPronnunciations);
+            return new Transcription(provider, dict, $"{a.Word} {b.Word}", concatPronnunciations);
         }
     }
 

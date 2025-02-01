@@ -1,4 +1,5 @@
 ﻿using poetrain.Data;
+using poetrain.Markov;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +37,20 @@ namespace poetrain.Phonology
             var stressScore = a.ScoreStresses(b);
             var score = scoreAggr.AggregateScores(stressScore, vowelScore, consonantScore);
             return new RhymeScore(score, a, b);
+        }
+
+        public static IEnumerable<IPronnunciation> SuggestOneRhyme(this IPronnunciation p, IPredictionTable predictionTable, float heatExponent)
+        {
+            var dict = p.Transcription.Dictionary;
+            var offset = 0;
+            var predictWindow = new PredictionWindow(predictionTable.WindowLength);
+            while (offset < p.SyllableCount)
+            {
+                var predictions = predictionTable
+                    .PredictNext(predictWindow.Words)
+                    .Select(p => dict.TryGetTranscription(p.Key.Text));
+
+            }
         }
 
         private static float ScoreConsonants(this IPronnunciation a, IPronnunciation b)

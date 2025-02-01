@@ -13,6 +13,7 @@ namespace poetrain.Markov
         public IWord GetWord(int index);
         public IWord? TryGetWord(string text);
         public IEnumerable<KeyValuePair<IWord, float>> PredictNext(params IWord[] window);
+        public IEnumerable<KeyValuePair<IWord, float>> PredictNext(ReadOnlySpan<IWord> window);
         public MarkovPredictionNode GetRootNode();
     }
 

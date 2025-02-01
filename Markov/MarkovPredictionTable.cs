@@ -25,7 +25,9 @@ namespace poetrain.Markov
         private IWord[] _Words;
         private readonly int _WindowLen;
 
-        public IEnumerable<KeyValuePair<IWord, float>> PredictNext(params IWord[] window) // window is newest-first, so after "how are you" with a window size of 2 you have ["you", "are"]
+        public IEnumerable<KeyValuePair<IWord, float>> PredictNext(params IWord[] window) => PredictNext(window.AsSpan());
+
+        public IEnumerable<KeyValuePair<IWord, float>> PredictNext(ReadOnlySpan<IWord> window) // window is newest-first, so after "how are you" with a window size of 2 you have ["you", "are"]
         {
             if (window.Length > _WindowLen)
                 throw new ArgumentException(nameof(window));
