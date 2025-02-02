@@ -15,13 +15,13 @@ namespace poetrain.Phonology
         public int PronnunciationCount => _Pronnnunciations.Length;
         public IPronnunciation this[int index] => _Pronnnunciations[index];
 
-        public Transcription(IPhonologyProvider provider, IPhoneticDictionary dictionary, string word, IEnumerable<PronnunciationData> pronnunciations)
+        public Transcription(IPhoneticDictionary dictionary, string word, IEnumerable<PronnunciationData> pronnunciations)
         {
-            Provider = provider;
+            Provider = dictionary.Provider;
             Dictionary = dictionary;
             Word = word;
             _Pronnnunciations = pronnunciations
-                .Select(d => new Pronnunciation(provider, this, d))
+                .Select(d => new Pronnunciation(dictionary.Provider, this, d))
                 .ToArray();
         }
 

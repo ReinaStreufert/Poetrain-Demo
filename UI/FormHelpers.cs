@@ -22,6 +22,15 @@ namespace poetrain.UI
             return label;
         }
 
+        public static LinkLabel CreateLinkLabel(float textSize)
+        {
+            var label = new LinkLabel();
+            label.AutoSize = true;
+            label.Font = CreateFont(textSize);
+            label.LinkColor = Color.DodgerBlue;
+            return label;
+        }
+
         public static TextBox CreateTextBox()
         {
             var textBox = new TextBox();

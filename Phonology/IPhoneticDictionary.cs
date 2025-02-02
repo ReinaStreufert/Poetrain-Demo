@@ -95,7 +95,7 @@ namespace poetrain.Phonology
             var concatPronnunciations = aPronnunciations
                 .SelectMany(x => bPronnunciations
                 .Select(y => PronnunciationData.Concat(x, y)));
-            return new Transcription(provider, dict, $"{a.Word} {b.Word}", concatPronnunciations);
+            return new Transcription(dict, $"{a.Word} {b.Word}", concatPronnunciations);
         }
     }
 

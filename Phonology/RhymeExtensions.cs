@@ -39,18 +39,47 @@ namespace poetrain.Phonology
             return new RhymeScore(score, a, b);
         }
 
-        public static IEnumerable<IPronnunciation> SuggestOneRhyme(this IPronnunciation p, IPredictionTable predictionTable, float heatExponent)
+        public static IEnumerable<IPronnunciation> SuggestOneRhyme(this IPronnunciation pronnunciation, IPredictionTable predictionTable, double suggestionSelectionProbability, Random rand)
         {
-            var dict = p.Transcription.Dictionary;
+            var dict = pronnunciation.Transcription.Dictionary;
             var offset = 0;
             var predictWindow = new PredictionWindow(predictionTable.WindowLength);
-            while (offset < p.SyllableCount)
+            while (offset < pronnunciation.SyllableCount)
             {
+                var maxSyllables = pronnunciation.SyllableCount - offset;
                 var predictions = predictionTable
                     .PredictNext(predictWindow.Words)
-                    .Select(p => dict.TryGetTranscription(p.Key.Text));
-
+                    .SelectMany(p => (dict.TryGetTranscription(p.Key.Text) ?? Enumerable.Empty<IPronnunciation>())
+                    .Select(pronnunc => new KeyValuePair<IPronnunciation, float>(pronnunc, p.Value)))
+                    .Where(p => p.Key.SyllableCount < maxSyllables)
+                    .Select(p => new KeyValuePair<IPronnunciation, float>(p.Key, p.Value * GetTruncatedScore(pronnunciation, p.Key, offset)))
+                    .OrderByDescending(p => p.Value);
+                var prediction = rand.RandomElement(predictions, suggestionSelectionProbability).Key;
+                yield return prediction;
+                offset += prediction.SyllableCount;
+                predictWindow.Push(predictionTable.TryGetWord(prediction.Transcription.Word) ?? throw new InvalidOperationException());
             }
+        }
+
+        private static T RandomElement<T>(this Random rand, IEnumerable<T> sequence, double elementProbability)
+        {
+            for (; ;)
+            {
+                foreach (var el in sequence)
+                {
+                    if (rand.NextDouble() <= elementProbability)
+                        return el;
+                }
+            }
+        }
+
+        private static float GetTruncatedScore(IPronnunciation a, IPronnunciation b, int aOffset)
+        {
+            var truncLen = b.SyllableCount;
+            var aPronnuncData = a.ToPronnunciationData();
+            aPronnuncData = aPronnuncData.Subpronnunciation(aOffset, truncLen);
+            a = new Pronnunciation(a.Provider, a.Transcription, aPronnuncData);
+            return a.ScoreRhyme(b).Value;
         }
 
         private static float ScoreConsonants(this IPronnunciation a, IPronnunciation b)

@@ -18,7 +18,8 @@ namespace poetrain
             var ipa = IPAData.ParsePhonologyData(EmbeddedSource.GetEmbeddedXml("ipaConfig.xml"));
             var provider = new PhonologyProvider(ipa);
             var dict = provider.LoadLocale("en_US");
-            Application.Run(new DemoWindow(dict));
+            var predictionTable = MarkovData.LoadMarkovTable(EmbeddedSource.GetEmbeddedStream("lyricsMarkov.hayley"));
+            Application.Run(new DemoWindow(dict, predictionTable, new Random()));
         }
     }
 }

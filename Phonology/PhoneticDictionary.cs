@@ -18,7 +18,7 @@ namespace poetrain.Phonology
             Provider = provider;
             _LocalizationPhonology = localizationPhonology;
             _RawTranscriptions = rawTranscriptions.ToImmutableDictionary();
-            _TranscriptionBuilder = new TranscriptionBuilder(provider);
+            _TranscriptionBuilder = new TranscriptionBuilder(this);
         }
 
         private ILocalizationPhonology _LocalizationPhonology;
