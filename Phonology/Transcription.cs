@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -147,7 +148,10 @@ namespace poetrain.Phonology
         public PronnunciationData Subpronnunciation(int startSyllable, int syllableCount)
         {
             var subFirstSyll = _SyllableRanges[startSyllable];
-            var subEndSyll = _SyllableRanges[startSyllable + syllableCount - 1];
+            var subEndSyllIndex = startSyllable + syllableCount - 1;
+            if (subEndSyllIndex < 0 || subEndSyllIndex >= _SyllableRanges.Length)
+                Console.WriteLine();
+            var subEndSyll = _SyllableRanges[subEndSyllIndex];
             var phonymArr = new ISemiSyllable[subEndSyll.StartIndex + subEndSyll.TotalCount - subFirstSyll.StartIndex];
             for (int i = subFirstSyll.StartIndex; i < subEndSyll.StartIndex + subEndSyll.TotalCount; i++)
                 phonymArr[i - subFirstSyll.StartIndex] = _Phonyms[i];

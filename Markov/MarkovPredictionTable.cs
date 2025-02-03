@@ -41,7 +41,7 @@ namespace poetrain.Markov
                     currentNode = node;
                 predictions.SetRange(currentNode.NextWordProbabilities);
             }
-            return predictions.OrderByDescending(p => p.Value);
+            return predictions;
         }
 
         public IWord? TryGetWord(string text)

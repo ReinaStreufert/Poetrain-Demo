@@ -10,6 +10,8 @@ namespace poetrain.Phonology
 {
     public static class RhymeExtensions
     {
+        private const int _MaxPredictions = 1000;
+
         public static RhymeScore ScoreRhyme(this ITranscription a, ITranscription b)
         {
             return a
@@ -39,7 +41,7 @@ namespace poetrain.Phonology
             return new RhymeScore(score, a, b);
         }
 
-        public static IEnumerable<IPronnunciation> SuggestOneRhyme(this IPronnunciation pronnunciation, IPredictionTable predictionTable, double suggestionSelectionProbability, Random rand)
+        public static IEnumerable<IPronnunciation> SuggestOneRhyme(this IPronnunciation pronnunciation, IPredictionTable predictionTable, float suggestionSelectionProbability, float thresholdScore, Random rand)
         {
             var dict = pronnunciation.Transcription.Dictionary;
             var offset = 0;
@@ -49,11 +51,11 @@ namespace poetrain.Phonology
                 var maxSyllables = pronnunciation.SyllableCount - offset;
                 var predictions = predictionTable
                     .PredictNext(predictWindow.Words)
-                    .SelectMany(p => (dict.TryGetTranscription(p.Key.Text) ?? Enumerable.Empty<IPronnunciation>())
-                    .Select(pronnunc => new KeyValuePair<IPronnunciation, float>(pronnunc, p.Value)))
-                    .Where(p => p.Key.SyllableCount < maxSyllables)
-                    .Select(p => new KeyValuePair<IPronnunciation, float>(p.Key, p.Value * GetTruncatedScore(pronnunciation, p.Key, offset)))
-                    .OrderByDescending(p => p.Value);
+                    .Take(_MaxPredictions)
+                    .SelectMany(pr => (dict.TryGetTranscription(pr.Key.Text) ?? Enumerable.Empty<IPronnunciation>())
+                    .Where(p => p.SyllableCount > 0 && p.SyllableCount < maxSyllables)
+                    .Select(p => new KeyValuePair<IPronnunciation, float>(p, pr.Value * GetTruncatedScore(pronnunciation, p, offset))))
+                    .Where(p => p.Value >= thresholdScore);
                 var prediction = rand.RandomElement(predictions, suggestionSelectionProbability).Key;
                 yield return prediction;
                 offset += prediction.SyllableCount;
