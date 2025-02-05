@@ -8,17 +8,21 @@ namespace poetrain.UI
 {
     public class InputBar : ConsoleUIElement
     {
-        public InputBar() 
+        public InputBar(ConsoleColor bgColor = ConsoleColor.Black, ConsoleColor fgColor = ConsoleColor.Gray)
         {
-            
+            BgColor = bgColor;
+            FgColor = fgColor;
         }
 
-        public async Task LoopReadAsync(string inputText, Action<string> callback, CancellationToken cancelToken)
+        public async Task LoopReadAsync(Action<string> callback, CancellationToken cancelToken, string inputText = "Enter rhymes")
         {
-            while (!cancelToken.IsCancellationRequested)
+            for (; ; )
             {
                 _Console.RenderCursorPosition = (0, 1);
                 _Console.Write(new string(' ', Console.WindowWidth), false);
+                if (cancelToken.IsCancellationRequested)
+                    break;
+                _Console.Write($"{inputText}: ");
                 var text = await _Console.ReadLineAsync(cancelToken, true);
                 if (!cancelToken.IsCancellationRequested)
                     callback(text);

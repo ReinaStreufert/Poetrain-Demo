@@ -22,6 +22,7 @@ namespace poetrain.UI
         public void Log(string word, float score)
         {
             _Console.Write(word + " ");
+            WriteScore(score);
         }
 
         private void WriteScore(float score)

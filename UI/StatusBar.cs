@@ -14,13 +14,13 @@ namespace poetrain.UI
             FgColor = fgColor;
         }
 
-        public async Task CountdownAsync(string statusText, TimeSpan duration)
+        public async Task CountdownAsync(string statusText, TimeSpan duration, Func<int> scoreCallback)
         {
             var endTime = DateTime.Now + duration;
             while (DateTime.Now < endTime)
             {
                 var timeLeft = endTime - DateTime.Now;
-                Draw($"{statusText} / {timeLeft.Minutes.ToString("00")}:{timeLeft.Seconds.ToString("00")}");
+                Draw($"{statusText} / {timeLeft.Minutes.ToString("00")}:{timeLeft.Seconds.ToString("00")} / Score: {scoreCallback()}");
                 await Task.Delay(500);
             }
         }
