@@ -44,7 +44,7 @@ namespace poetrain.UI
 
         private async Task StatusCountdownAsync(ITranscription challengeWord, CancellationTokenSource cancelTokenSource)
         {
-            await _StatusBar.CountdownAsync(challengeWord.Word, TimeSpan.FromSeconds(_DurationSeconds), () => _DurationSeconds);
+            await _StatusBar.CountdownAsync(challengeWord.Word, TimeSpan.FromSeconds(_DurationSeconds), () => _Score);
             cancelTokenSource.Cancel();
         }
 
