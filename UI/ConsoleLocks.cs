@@ -30,6 +30,25 @@ namespace poetrain.UI
                 callback();
         }
 
+        public async Task<ConsoleKeyInfo> ReadKeyConcurrentAsync(CancellationToken cancelToken)
+        {
+            var waitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
+            var t = ReadKeyConcurrentAsync(waitHandle);
+            while (!t.IsCompleted)
+            {
+                cancelToken.ThrowIfCancellationRequested();
+                waitHandle.WaitOne(200);
+            }
+            return await t;
+        }
+
+        private async Task<ConsoleKeyInfo> ReadKeyConcurrentAsync(EventWaitHandle waitHandle)
+        {
+            var result = await ReadKeyConcurrentAsync();
+            waitHandle.Set();
+            return result;
+        }
+
         public Task<ConsoleKeyInfo> ReadKeyConcurrentAsync()
         {
             var oldStartLock = Interlocked.CompareExchange(ref _ReaderStartLock, new object(), null);

@@ -23,9 +23,13 @@ namespace poetrain.UI
                 if (cancelToken.IsCancellationRequested)
                     break;
                 _Console.Write($"{inputText}: ");
-                var text = await _Console.ReadLineAsync(cancelToken, true);
-                if (!cancelToken.IsCancellationRequested)
-                    callback(text);
+                try
+                {
+                    var text = await _Console.ReadLineAsync(cancelToken, true);
+                    if (!cancelToken.IsCancellationRequested)
+                        callback(text);
+                }
+                catch (OperationCanceledException) { }
             }
         }
 

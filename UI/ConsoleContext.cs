@@ -63,15 +63,15 @@ namespace poetrain.UI
         }
 
         public Task<ConsoleKeyInfo> ReadKeyAsync() => _Locks.ReadKeyConcurrentAsync();
+        public Task<ConsoleKeyInfo> ReadKeyAsync(CancellationToken cancelToken) => _Locks.ReadKeyConcurrentAsync(cancelToken);
         public async Task<string> ReadLineAsync(CancellationToken cancelToken, bool omitLineBreak = false)
         {
             var sb = new StringBuilder();
             VisibleCursorPosition = RenderCursorPosition;
             for (; ;)
             {
-                var key = await ReadKeyAsync();
-                if (cancelToken.IsCancellationRequested)
-                    throw new TaskCanceledException();
+                var key = await ReadKeyAsync(cancelToken);
+                cancelToken.ThrowIfCancellationRequested();
                 if (key.Key == ConsoleKey.Enter)
                     break;
                 if (key.Key == ConsoleKey.Backspace)
