@@ -12,10 +12,14 @@ namespace poetrain.UI
         {
             BgColor = bgColor;
             FgColor = fgColor;
+            _InputReader = _Console.StartConsoleReader();
         }
+
+        private ConsoleInputReader _InputReader;
 
         public async Task LoopReadAsync(Action<string> callback, CancellationToken cancelToken, string inputText = "Enter rhymes")
         {
+            _Console.VisibleCursorShown = true;
             for (; ; )
             {
                 _Console.RenderCursorPosition = (0, 1);
@@ -25,13 +29,22 @@ namespace poetrain.UI
                 _Console.Write($"{inputText}: ");
                 try
                 {
-                    var text = await _Console.ReadLineAsync(cancelToken, true);
+                    var text = await _Console.ReadLineAsync(_InputReader, cancelToken, true);
                     if (!cancelToken.IsCancellationRequested)
                         callback(text);
                 }
                 catch (OperationCanceledException) { }
             }
+            _Console.VisibleCursorShown = false;
         }
 
+        public async Task PauseTillKeyAsync()
+        {
+            var cancelTokenSrc = new CancellationTokenSource();
+            await _InputReader.ReadKeysAsync((key) =>
+            {
+                return false;
+            }, cancelTokenSrc.Token);
+        }
     }
 }

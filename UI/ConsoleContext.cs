@@ -62,37 +62,41 @@ namespace poetrain.UI
             });
         }
 
-        public Task<ConsoleKeyInfo> ReadKeyAsync() => _Locks.ReadKeyConcurrentAsync();
-        public Task<ConsoleKeyInfo> ReadKeyAsync(CancellationToken cancelToken) => _Locks.ReadKeyConcurrentAsync(cancelToken);
-        public async Task<string> ReadLineAsync(CancellationToken cancelToken, bool omitLineBreak = false)
+        public ConsoleInputReader StartConsoleReader() => _Locks.StartConsoleReader();
+
+        public async Task<string> ReadLineAsync(ConsoleInputReader reader, CancellationToken cancelToken, bool omitLineBreak = false)
         {
             var sb = new StringBuilder();
             VisibleCursorPosition = RenderCursorPosition;
-            for (; ;)
+            var sbLock = new object();
+            await reader.ReadKeysAsync((key) =>
             {
-                var key = await ReadKeyAsync(cancelToken);
-                cancelToken.ThrowIfCancellationRequested();
-                if (key.Key == ConsoleKey.Enter)
-                    break;
-                if (key.Key == ConsoleKey.Backspace)
+                lock (sbLock)
                 {
-                    if (sb.Length == 0)
+                    if (key.Key == ConsoleKey.Enter)
+                        return false;
+                    if (key.Key == ConsoleKey.Backspace)
                     {
+                        if (sb.Length == 0)
+                        {
+                            VisibleCursorPosition = RenderCursorPosition;
+                            return true;
+                        }
+                        RenderCursorPosition = (RenderCursorPosition.left - 1, RenderCursorPosition.top);
                         VisibleCursorPosition = RenderCursorPosition;
-                        continue;
-                    }  
-                    RenderCursorPosition = (RenderCursorPosition.left - 1, RenderCursorPosition.top);
-                    VisibleCursorPosition = RenderCursorPosition;
-                    Write(" ", false);
-                    sb.Remove(sb.Length - 1, 1);
-                } else if (!key.Modifiers.HasFlag(ConsoleModifiers.Control) && !key.Modifiers.HasFlag(ConsoleModifiers.Alt) && key.KeyChar != '\0')
-                {
-                    var c = key.KeyChar;
-                    sb.Append(c);
-                    Write(c.ToString());
-                    VisibleCursorPosition = RenderCursorPosition;
+                        Write(" ", false);
+                        sb.Remove(sb.Length - 1, 1);
+                    }
+                    else if (!key.Modifiers.HasFlag(ConsoleModifiers.Control) && !key.Modifiers.HasFlag(ConsoleModifiers.Alt) && key.KeyChar != '\0')
+                    {
+                        var c = key.KeyChar;
+                        sb.Append(c);
+                        Write(c.ToString());
+                        VisibleCursorPosition = RenderCursorPosition;
+                    }
+                    return true;
                 }
-            }
+            }, cancelToken);
             if (!omitLineBreak)
             {
                 WriteLine();

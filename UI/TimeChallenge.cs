@@ -12,8 +12,8 @@ namespace poetrain.UI
         private IPhoneticDictionary _Dict;
         private Func<ITranscription> _ChallengeWordSource;
         private StatusBar _StatusBar = new StatusBar();
-        private InputBar _InputBar = new InputBar();
         private InputLog _InputLog = new InputLog();
+        private InputBar _InputBar = new InputBar();
         private HashSet<string> _InputtedPhrases = new HashSet<string>();
         private int _DurationSeconds;
         private int _Score = 0;
@@ -27,9 +27,9 @@ namespace poetrain.UI
 
         public async Task EnterChallengeLoop(CancellationToken cancelToken)
         {
+            _InputLog.ClearLog();
             while (!cancelToken.IsCancellationRequested)
             {
-                _InputLog.ClearLog();
                 _InputtedPhrases.Clear();
                 _Score = 0;
                 var cancelTokenSource = new CancellationTokenSource();
@@ -37,7 +37,8 @@ namespace poetrain.UI
                 _ = StatusCountdownAsync(challengeWord, cancelTokenSource);
                 await _InputBar.LoopReadAsync((t) => HandleInput(t, challengeWord), cancelTokenSource.Token);
                 _StatusBar.Draw($"Score: {_Score} / Press any key to continue...");
-                Console.ReadKey(false);
+                _InputLog.ClearLog();
+                await _InputBar.PauseTillKeyAsync();
             }
         }
 

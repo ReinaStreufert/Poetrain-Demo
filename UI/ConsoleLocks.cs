@@ -21,8 +21,6 @@ namespace poetrain.UI
         }
 
         private object _RenderLock = new object();
-        private object? _ReaderStartLock;
-        private Task<ConsoleKeyInfo>? _ReaderTask;
 
         public void EnterRender(Action callback)
         {
@@ -30,39 +28,29 @@ namespace poetrain.UI
                 callback();
         }
 
-        public async Task<ConsoleKeyInfo> ReadKeyConcurrentAsync(CancellationToken cancelToken)
+        public ConsoleInputReader StartConsoleReader()
         {
-            var waitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
-            var t = ReadKeyConcurrentAsync(waitHandle);
-            while (!t.IsCompleted)
-            {
-                cancelToken.ThrowIfCancellationRequested();
-                waitHandle.WaitOne(200);
-            }
-            return await t;
+            var cancelTokenSource = new CancellationTokenSource();
+            var readerState = new InputReaderState(cancelTokenSource.Token);
+            _ = ReaderLoopAsync(cancelTokenSource.Token, readerState);
+            return new ConsoleInputReader(readerState, cancelTokenSource);
         }
 
-        private async Task<ConsoleKeyInfo> ReadKeyConcurrentAsync(EventWaitHandle waitHandle)
+        private async Task ReaderLoopAsync(CancellationToken cancelToken, InputReaderState state)
         {
-            var result = await ReadKeyConcurrentAsync();
-            waitHandle.Set();
-            return result;
-        }
-
-        public Task<ConsoleKeyInfo> ReadKeyConcurrentAsync()
-        {
-            var oldStartLock = Interlocked.CompareExchange(ref _ReaderStartLock, new object(), null);
-            if (oldStartLock != null)
+            await Task.Run(() =>
             {
-                while (_ReaderTask == null)
-                    lock (_ReaderStartLock) { }
-                
-            } else
-            {
-                lock (_ReaderStartLock)
-                    _ReaderTask = ReadKeyAsync();
-            }
-            return _ReaderTask;
+                while (!cancelToken.IsCancellationRequested)
+                {
+                    var key = Console.ReadKey(false);
+                    lock (state.Lock)
+                    {
+                        state.LastKey = key;
+                        state.Counter++;
+                        Monitor.PulseAll(state.Lock);
+                    }
+                }
+            });
         }
 
         public void RestoreVisibleCursor()
@@ -71,15 +59,6 @@ namespace poetrain.UI
             Console.CursorVisible = VisibleCursorShown;
         }
 
-        private async Task<ConsoleKeyInfo> ReadKeyAsync()
-        {
-            return await Task.Run(() =>
-            {
-                var k = Console.ReadKey(false);
-                _ReaderStartLock = null;
-                _ReaderTask = null;
-                return k;
-            });
-        }
+        
     }
 }
