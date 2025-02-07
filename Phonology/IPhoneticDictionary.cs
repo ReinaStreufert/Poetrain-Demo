@@ -89,9 +89,9 @@ namespace poetrain.Phonology
             if (dict == null)
                 dict = a.Dictionary;
             var aPronnunciations = a
-                .Select(p => p.ToPronnunciationData());
+                .Select(p => p.Data);
             var bPronnunciations = b
-                .Select(p => p.ToPronnunciationData());
+                .Select(p => p.Data);
             var concatPronnunciations = aPronnunciations
                 .SelectMany(x => bPronnunciations
                 .Select(y => PronnunciationData.Concat(x, y)));
@@ -103,14 +103,18 @@ namespace poetrain.Phonology
     {
         public IPhonologyProvider Provider { get; }
         public ITranscription Transcription { get; }
-
         public int PhonymCount { get; }
         public int SyllableCount { get; }
         public ISemiSyllable this[int phonymIndex] { get; }
+        public PronnunciationData Data { get; }
+    }
+
+    public interface IPronnunciationData
+    {
+        public int SyllableCount { get; }
         public SyllableStress GetSyllableStress(int syllableIndex);
         public ISemiSyllable GetVowelBridge(int syllableIndex);
         public ReadOnlySpan<ISemiSyllable> GetConsonantRange(int consonantRangeIndex);
-        public PronnunciationData ToPronnunciationData();
     }
 
     public interface ISemiSyllable

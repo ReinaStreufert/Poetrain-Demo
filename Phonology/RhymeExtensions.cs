@@ -34,62 +34,26 @@ namespace poetrain.Phonology
             if (provider != b.Provider)
                 throw new InvalidOperationException("Pronnunciations are not comparable");
             var scoreAggr = provider.ScoreAggregation;
+            var scoreVal = a.Data.ScoreRhyme(b.Data, scoreAggr);
+            return new RhymeScore(scoreVal, a, b);
+        }
+
+        public static float ScoreRhyme(this PronnunciationData a, PronnunciationData b, ScoreAggregationWeights scoreAggr)
+        {
             var vowelScore = a.ScoreVowels(b);
             var consonantScore = a.ScoreConsonants(b);
-            var stressScore = a.ScoreStresses(b);
-            var score = scoreAggr.AggregateScores(stressScore, vowelScore, consonantScore);
-            return new RhymeScore(score, a, b);
+            var stressScore = a.ScoreStresses(b); // why does just this one need explicit generic?
+            return scoreAggr.AggregateScores(stressScore, vowelScore, consonantScore);
         }
 
-        public static IEnumerable<IPronnunciation> SuggestOneRhyme(this IPronnunciation pronnunciation, IPredictionTable predictionTable, float suggestionSelectionProbability, float thresholdScore, Random rand)
+        public static float ScoreConsonants(this PronnunciationData a, PronnunciationData b)
         {
-            var dict = pronnunciation.Transcription.Dictionary;
-            var offset = 0;
-            var predictWindow = new PredictionWindow(predictionTable.WindowLength);
-            while (offset < pronnunciation.SyllableCount)
-            {
-                var maxSyllables = pronnunciation.SyllableCount - offset;
-                var predictions = predictionTable
-                    .PredictNext(predictWindow.Words)
-                    .Take(_MaxPredictions)
-                    .SelectMany(pr => (dict.TryGetTranscription(pr.Key.Text) ?? Enumerable.Empty<IPronnunciation>())
-                    .Where(p => p.SyllableCount > 0 && p.SyllableCount < maxSyllables)
-                    .Select(p => new KeyValuePair<IPronnunciation, float>(p, pr.Value * GetTruncatedScore(pronnunciation, p, offset))))
-                    .Where(p => p.Value >= thresholdScore);
-                var prediction = rand.RandomElement(predictions, suggestionSelectionProbability).Key;
-                yield return prediction;
-                offset += prediction.SyllableCount;
-                predictWindow.Push(predictionTable.TryGetWord(prediction.Transcription.Word) ?? throw new InvalidOperationException());
-            }
-        }
-
-        private static T RandomElement<T>(this Random rand, IEnumerable<T> sequence, double elementProbability)
-        {
-            for (; ;)
-            {
-                foreach (var el in sequence)
-                {
-                    if (rand.NextDouble() <= elementProbability)
-                        return el;
-                }
-            }
-        }
-
-        private static float GetTruncatedScore(IPronnunciation a, IPronnunciation b, int aOffset)
-        {
-            var truncLen = b.SyllableCount;
-            var aPronnuncData = a.ToPronnunciationData();
-            aPronnuncData = aPronnuncData.Subpronnunciation(aOffset, truncLen);
-            a = new Pronnunciation(a.Provider, a.Transcription, aPronnuncData);
-            return a.ScoreRhyme(b).Value;
-        }
-
-        private static float ScoreConsonants(this IPronnunciation a, IPronnunciation b)
-        {
-            if (a.SyllableCount == 0 || b.SyllableCount == 0)
+            var aSyllCount = a.SyllableCount;
+            var bSyllCount = b.SyllableCount;
+            if (aSyllCount == 0 || bSyllCount == 0)
                 return 0f;
-            var larger = a.SyllableCount > b.SyllableCount ? a : b;
-            var alt = a.SyllableCount > b.SyllableCount ? b : a;
+            var larger = aSyllCount > bSyllCount ? a : b;
+            var alt = aSyllCount > bSyllCount ? b : a;
             var rangeCount = larger.SyllableCount + 1;
             var altOffset = larger.SyllableCount - alt.SyllableCount;
             var sum = 0f;
@@ -104,7 +68,7 @@ namespace poetrain.Phonology
             return rangeCount > 0 ? sum / rangeCount : 1f;
         }
 
-        private static float ScoreVowels(this IPronnunciation a, IPronnunciation b)
+        public static float ScoreVowels(this PronnunciationData a, PronnunciationData b)
         {
             var larger = a.SyllableCount > b.SyllableCount ? a : b;
             var alt = a.SyllableCount > b.SyllableCount ? b : a;
@@ -116,7 +80,7 @@ namespace poetrain.Phonology
             return vowelCount > 0 ? sum / vowelCount : 1f;
         }
 
-        private static float ScoreStresses(this IPronnunciation a, IPronnunciation b)
+        public static float ScoreStresses(this PronnunciationData a, PronnunciationData b)
         {
             var larger = a.SyllableCount > b.SyllableCount ? a : b;
             var alt = a.SyllableCount > b.SyllableCount ? b : a;

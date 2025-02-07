@@ -47,13 +47,14 @@ namespace poetrain.UI
 
         private void Suggest(object? sender, LinkLabelLinkClickedEventArgs e)
         {
+            throw new NotImplementedException();
             var transcript = _Input1.Transcription;
             if (transcript == null)
                 return;
             var pronnunc = transcript[_Rand.Next(transcript.PronnunciationCount)]; // choose a random pronnunciation of the first transcription to suggest a rhyme for
-            var suggestion = pronnunc.SuggestOneRhyme(_Markov, 0.05f /* uhhh idk */, 0.5f, _Rand);
-            var phrase = string.Join(' ', suggestion.Select(p => p.Transcription.Word)); // reconstruct a phrase
-            _Input2.SetText(phrase);
+            //var suggestion = pronnunc.SuggestOneRhyme(_Markov, 0.05f /* uhhh idk */, 0.5f, _Rand);
+            //var phrase = string.Join(' ', suggestion.Select(p => p.Transcription.Word)); // reconstruct a phrase
+            //_Input2.SetText(phrase);
         }
 
         private void UpdateRhymeScore()

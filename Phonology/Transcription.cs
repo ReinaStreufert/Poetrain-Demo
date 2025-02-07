@@ -22,7 +22,7 @@ namespace poetrain.Phonology
             Dictionary = dictionary;
             Word = word;
             _Pronnnunciations = pronnunciations
-                .Select(d => new Pronnunciation(dictionary.Provider, this, d))
+                .Select(d => (IPronnunciation)new Pronnunciation(dictionary.Provider, this, d))
                 .ToArray();
         }
 
@@ -48,70 +48,34 @@ namespace poetrain.Phonology
     {
         public IPhonologyProvider Provider { get; }
         public ITranscription Transcription { get; }
-        public ISemiSyllable this[int phonymIndex] => _Phonyms[phonymIndex];
-        public int SyllableCount => _SyllableRanges.Length;
-        public int PhonymCount => _Phonyms.Length;
+        public ISemiSyllable this[int phonymIndex] => _Data.Phonyms[phonymIndex];
+        public int SyllableCount => _Data.Phonyms.Length;
+        public int PhonymCount => _Data.Phonyms.Length;
+        public PronnunciationData Data => _Data;
 
         public Pronnunciation(IPhonologyProvider provider, ITranscription transcription, PronnunciationData data)
         {
             Provider = provider;
             Transcription = transcription;
-            _Phonyms = data.Phonyms;
-            _SyllableRanges = data.SyllableRanges;
+            _Data = data;
         }
 
-        private ISemiSyllable[] _Phonyms;
-        private SyllableRange[] _SyllableRanges;
+        private PronnunciationData _Data;
 
-        public ReadOnlySpan<ISemiSyllable> GetConsonantRange(int consonantRangeIndex)
+        public override string ToString()
         {
-            if (consonantRangeIndex < 0)
-                return ReadOnlySpan<ISemiSyllable>.Empty;
-            if (consonantRangeIndex < _SyllableRanges.Length)
-            {
-                var range = _SyllableRanges[consonantRangeIndex];
-                var len = range.VowelIndex - range.StartIndex;
-                return len > 0 ? _Phonyms.AsSpan(range.StartIndex, len) : ReadOnlySpan<ISemiSyllable>.Empty;
-            }
-            else if (consonantRangeIndex == _SyllableRanges.Length)
-            {
-                var range = _SyllableRanges[_SyllableRanges.Length - 1];
-                var len = (range.StartIndex + range.TotalCount) - (range.VowelIndex + 1);
-                return len > 0 ? _Phonyms.AsSpan(range.VowelIndex + 1, len) : ReadOnlySpan<ISemiSyllable>.Empty;
-            }
-            else
-                return ReadOnlySpan<ISemiSyllable>.Empty;
-        }
-
-        public SyllableStress GetSyllableStress(int syllableIndex)
-        {
-            return _SyllableRanges[syllableIndex].Stress;
-        }
-
-        public ISemiSyllable GetVowelBridge(int syllableIndex)
-        {
-            return _Phonyms[_SyllableRanges[syllableIndex].VowelIndex];
+            var str = string.Concat(_Data.Phonyms.Select(p => p.IPAString));
+            return $"/{str}/";
         }
 
         public IEnumerator<ISemiSyllable> GetEnumerator()
         {
-            return (IEnumerator<ISemiSyllable>)_Phonyms.GetEnumerator();
+            return ((IEnumerable<ISemiSyllable>)_Data.Phonyms).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return _Phonyms.GetEnumerator();
-        }
-
-        public PronnunciationData ToPronnunciationData()
-        {
-            return new PronnunciationData(_Phonyms, _SyllableRanges);
-        }
-
-        public override string ToString()
-        {
-            var str = string.Concat(_Phonyms.Select(p => p.IPAString));
-            return $"/{str}/";
+            return _Data.Phonyms.GetEnumerator();
         }
     }
 
@@ -131,10 +95,11 @@ namespace poetrain.Phonology
         }
     }
 
-    public struct PronnunciationData
+    public struct PronnunciationData : IPronnunciationData
     {
         public ISemiSyllable[] Phonyms => _Phonyms;
         public SyllableRange[] SyllableRanges => _SyllableRanges;
+        public int SyllableCount => _SyllableRanges.Length;
 
         public PronnunciationData(ISemiSyllable[] phonyms, SyllableRange[] syllableRanges)
         {
@@ -149,8 +114,6 @@ namespace poetrain.Phonology
         {
             var subFirstSyll = _SyllableRanges[startSyllable];
             var subEndSyllIndex = startSyllable + syllableCount - 1;
-            if (subEndSyllIndex < 0 || subEndSyllIndex >= _SyllableRanges.Length)
-                Console.WriteLine();
             var subEndSyll = _SyllableRanges[subEndSyllIndex];
             var phonymArr = new ISemiSyllable[subEndSyll.StartIndex + subEndSyll.TotalCount - subFirstSyll.StartIndex];
             for (int i = subFirstSyll.StartIndex; i < subEndSyll.StartIndex + subEndSyll.TotalCount; i++)
@@ -192,6 +155,36 @@ namespace poetrain.Phonology
                 concatRanges[pronnunc._SyllableRanges.Length + i] = range;
             }
             return new PronnunciationData(concatPhonyms, concatRanges); // ugh i hope this works
+        }
+
+        public ReadOnlySpan<ISemiSyllable> GetConsonantRange(int consonantRangeIndex)
+        {
+            if (consonantRangeIndex < 0)
+                return ReadOnlySpan<ISemiSyllable>.Empty;
+            if (consonantRangeIndex < _SyllableRanges.Length)
+            {
+                var range = _SyllableRanges[consonantRangeIndex];
+                var len = range.VowelIndex - range.StartIndex;
+                return len > 0 ? _Phonyms.AsSpan(range.StartIndex, len) : ReadOnlySpan<ISemiSyllable>.Empty;
+            }
+            else if (consonantRangeIndex == _SyllableRanges.Length)
+            {
+                var range = _SyllableRanges[_SyllableRanges.Length - 1];
+                var len = (range.StartIndex + range.TotalCount) - (range.VowelIndex + 1);
+                return len > 0 ? _Phonyms.AsSpan(range.VowelIndex + 1, len) : ReadOnlySpan<ISemiSyllable>.Empty;
+            }
+            else
+                return ReadOnlySpan<ISemiSyllable>.Empty;
+        }
+
+        public SyllableStress GetSyllableStress(int syllableIndex)
+        {
+            return _SyllableRanges[syllableIndex].Stress;
+        }
+
+        public ISemiSyllable GetVowelBridge(int syllableIndex)
+        {
+            return _Phonyms[_SyllableRanges[syllableIndex].VowelIndex];
         }
     }
 }

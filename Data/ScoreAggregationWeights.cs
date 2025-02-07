@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace poetrain.Data
 {
-    public class ScoreAggregationWeights
+    public struct ScoreAggregationWeights
     {
         public float Stresses { get; }
         public float Consonants { get; }
