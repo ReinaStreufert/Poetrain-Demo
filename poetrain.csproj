@@ -13,12 +13,14 @@
     <None Remove="sources\ipaConfig.xml" />
     <None Remove="sources\localizations\en_US.xml" />
     <None Remove="sources\lyricsMarkov.hayley" />
+    <None Remove="sources\statsDefault.xml" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="sources\ipaConfig.xml" />
     <EmbeddedResource Include="sources\localizations\en_US.xml" />
     <EmbeddedResource Include="sources\lyricsMarkov.hayley" />
+    <EmbeddedResource Include="sources\statsDefault.xml" />
   </ItemGroup>
 
   <ItemGroup>

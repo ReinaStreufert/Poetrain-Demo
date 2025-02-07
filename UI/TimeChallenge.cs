@@ -1,4 +1,5 @@
-﻿using poetrain.Phonology;
+﻿using poetrain.Data;
+using poetrain.Phonology;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,17 +28,21 @@ namespace poetrain.UI
 
         public async Task EnterChallengeLoop(CancellationToken cancelToken)
         {
-            _InputLog.ClearLog();
             while (!cancelToken.IsCancellationRequested)
             {
+                _InputLog.ClearLog();
                 _InputtedPhrases.Clear();
                 _Score = 0;
                 var cancelTokenSource = new CancellationTokenSource();
                 var challengeWord = _ChallengeWordSource();
                 _ = StatusCountdownAsync(challengeWord, cancelTokenSource);
                 await _InputBar.LoopReadAsync((t) => HandleInput(t, challengeWord), cancelTokenSource.Token);
-                _StatusBar.Draw($"Score: {_Score} / Press any key to continue...");
+                _StatusBar.Draw($"Score: {_Score} / High: {Persistence.HighScore} / Press any key to continue...");
                 _InputLog.ClearLog();
+                var pastRhymeInputs = Persistence.GetPastRhymes(challengeWord.Word);
+                if (pastRhymeInputs != null)
+                    _InputLog.ShowPastInputs(pastRhymeInputs);
+                Persistence.Save();
                 await _InputBar.PauseTillKeyAsync();
             }
         }
@@ -71,6 +76,8 @@ namespace poetrain.UI
                 _InputtedPhrases.Add(text.ToLower());
             _Score += score;
             _InputLog.Log(transcription.Word, score, syllCount);
+            Persistence.RecordScore(_Score);
+            Persistence.RecordRhyme(challengeWord.Word, text.ToLower());
         }
     }
 }

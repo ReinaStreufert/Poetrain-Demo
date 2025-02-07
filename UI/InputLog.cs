@@ -26,6 +26,35 @@ namespace poetrain.UI
             WriteScore(score, scoreFactor);
         }
 
+        public void ShowPastInputs(IEnumerable<string> pastInputs)
+        {
+            var oldFg = FgColor;
+            _Console.ForegroundColor = ConsoleColor.Magenta;
+            _Console.RenderCursorPosition = (0, 1);
+            _Console.Write("Past inputted rhymes:");
+            _Console.ForegroundColor = oldFg;
+            int w = Console.WindowWidth;
+            int h = Console.WindowHeight;
+            int currentColX = 0;
+            int currentY = 2;
+            int currentColWidth = 0;
+            foreach (var pastInput in pastInputs)
+            {
+                if (currentColX + pastInput.Length >= w)
+                    return; // stop at edge of window, ill make it scroll or something like that eventually idk
+                _Console.RenderCursorPosition = (currentColX, currentY);
+                _Console.Write(pastInput, false);
+                currentColWidth = Math.Max(currentColWidth, pastInput.Length);
+                currentY++;
+                if (currentY >= h)
+                {
+                    currentY = 2;
+                    currentColX += currentColWidth + 2;
+                    currentColWidth = 0;
+                }
+            }
+        }
+
         private void WriteScore(int score, int scoreFactor)
         {
             var unitScore = score / scoreFactor;
