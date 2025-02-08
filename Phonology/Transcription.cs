@@ -77,6 +77,16 @@ namespace poetrain.Phonology
         {
             return _Data.Phonyms.GetEnumerator();
         }
+
+        public VowelString ToVowelString()
+        {
+            var vowelArr = new ISemiSyllable[_Data.SyllableCount];
+            for (int i = 0; i < vowelArr.Length; i++)
+            {
+                vowelArr[i] = _Data.GetVowelBridge(i);
+            }
+            return new VowelString(vowelArr);
+        }
     }
 
     public struct SyllableRange

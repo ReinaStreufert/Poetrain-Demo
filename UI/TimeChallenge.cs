@@ -39,7 +39,7 @@ namespace poetrain.UI
                 await _InputBar.LoopReadAsync((t) => HandleInput(t, challengeWord), cancelTokenSource.Token);
                 _StatusBar.Draw($"Score: {_Score} / High: {Persistence.HighScore} / Press any key to continue...");
                 _InputLog.ClearLog();
-                var pastRhymeInputs = Persistence.GetPastRhymes(challengeWord.Word);
+                var pastRhymeInputs = Persistence.GetPastRhymes(challengeWord);
                 if (pastRhymeInputs != null)
                     _InputLog.ShowPastInputs(pastRhymeInputs);
                 Persistence.Save();
@@ -65,10 +65,10 @@ namespace poetrain.UI
                 return;
             var transcription = ITranscription.Concat(transcriptionArray!);
             var rhymeScore = transcription.ScoreRhyme(challengeWord);
-            var syllCount = rhymeScore.Pronnunciations
+            var challengePronnunc = rhymeScore.Pronnunciations
                 .Where(p => p.Transcription == challengeWord)
-                .First()
-                .SyllableCount;
+                .First();
+            var syllCount = challengePronnunc.SyllableCount;
             var score = (int)Math.Round(rhymeScore.Value * syllCount * 100f);
             if (_InputtedPhrases.Contains(text.ToLower()))
                 score = 0; // repeat words are worthless
@@ -77,7 +77,7 @@ namespace poetrain.UI
             _Score += score;
             _InputLog.Log(transcription.Word, score, syllCount);
             Persistence.RecordScore(_Score);
-            Persistence.RecordRhyme(challengeWord.Word, text.ToLower());
+            Persistence.RecordRhyme(challengePronnunc, text.ToLower());
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.Devices;
+using poetrain.Phonology;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -52,10 +54,19 @@ namespace poetrain.Data
             xmlDocument.Save(statsXmlPath);
         }
 
-        public static IEnumerable<string>? GetPastRhymes(string keyword)
+        public static IEnumerable<string>? GetPastRhymes(ITranscription challenge)
         {
             Load();
-            return _PastRhymes!.TryGetValue(keyword.ToLower(), out var result) ? result : null;
+            var vowelStrings = challenge
+                .Select(p => p.ToVowelString().ToString());
+            var pastRhymeLists = vowelStrings
+                .Select(text => _PastRhymes!.TryGetValue(text, out var result) ? result : null);
+            if (!pastRhymeLists.Where(l => l != null).Any())
+                return null;
+            return pastRhymeLists
+                .Where(l => l != null)
+                .SelectMany(l => l!)
+                .Distinct();
         }
 
         public static void RecordScore(int score)
@@ -64,15 +75,17 @@ namespace poetrain.Data
             _HighScore = Math.Max(score, _HighScore);
         }
 
-        public static void RecordRhyme(string keyword, string rhyme)
+        public static void RecordRhyme(IPronnunciation challenge, string rhyme)
         {
             Load();
+            var vowelString = challenge.ToVowelString().ToString();
             HashSet<string> pastRhymeList;
-            if (!_PastRhymes!.TryGetValue(keyword, out pastRhymeList!))
+            if (!_PastRhymes!.TryGetValue(vowelString, out pastRhymeList!))
             {
                 pastRhymeList = new HashSet<string>() { rhyme };
-                _PastRhymes.Add(keyword, pastRhymeList);
-            } else
+                _PastRhymes.Add(vowelString, pastRhymeList);
+            }
+            else
                 pastRhymeList.Add(rhyme);
         }
 
@@ -95,16 +108,16 @@ namespace poetrain.Data
                 .OfType<XmlElement>()
                 .First();
             _HighScore = int.Parse(statsNode.Attributes["highscore"]!.Value!);
-            var pastRhymePairs = xmlDocument.GetElementsByTagName("keyword")
+            var pastRhymePairs = xmlDocument.GetElementsByTagName("keyRhyme")
                 .OfType<XmlElement>()
-                .Select(ParseKeywordNode);
+                .Select(ParseKeyRhymeNode);
             _PastRhymes = new Dictionary<string, HashSet<string>>(pastRhymePairs);
             _StatsLoaded = true;
         }
 
-        private static KeyValuePair<string, HashSet<string>> ParseKeywordNode(XmlElement node)
+        private static KeyValuePair<string, HashSet<string>> ParseKeyRhymeNode(XmlElement node)
         {
-            var keyword = node.Attributes["word"]!.Value!;
+            var keyword = node.Attributes["syllableVowels"]!.Value!;
             var pastRhymes = node.GetElementsByTagName("pastRhyme")
                 .OfType<XmlElement>()
                 .Select(n => n.Attributes["word"]!.Value!)
@@ -114,8 +127,8 @@ namespace poetrain.Data
 
         private static XmlElement ToKeywordNode(KeyValuePair<string, HashSet<string>> pair, XmlDocument xmlDocument)
         {
-            var node = xmlDocument.CreateElement("keyword");
-            node.SetAttribute("word", pair.Key);
+            var node = xmlDocument.CreateElement("keyRhyme");
+            node.SetAttribute("syllableVowels", pair.Key);
             foreach (var pastRhyme in pair.Value)
             {
                 var pastRhymeNode = xmlDocument.CreateElement("pastRhyme");

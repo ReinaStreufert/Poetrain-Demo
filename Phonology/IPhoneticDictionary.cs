@@ -107,6 +107,7 @@ namespace poetrain.Phonology
         public int SyllableCount { get; }
         public ISemiSyllable this[int phonymIndex] { get; }
         public PronnunciationData Data { get; }
+        public VowelString ToVowelString();
     }
 
     public interface IPronnunciationData
