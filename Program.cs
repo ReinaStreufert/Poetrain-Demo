@@ -30,11 +30,14 @@ namespace poetrain
 
         private static ITranscription PickWord(KeyValuePair<IWord, float>[] englishWords, Random rand, IPhoneticDictionary dict)
         {
+            const float maxProbability = 0.05f; // filter out boring challenge words like "the", "and", "for"
             for (; ;)
             {
                 var index = rand.Next(englishWords.Length);
                 var pair = englishWords[index];
-                var probability = 1f - (Math.Pow(pair.Value * 2 - 1, 2)); // probability parabola bending towards words that are neither uncommon nor very frequent.
+                var probability = pair.Value; // my fancy math was useless
+                if (probability > maxProbability)
+                    continue;
                 var word = pair.Key;
                 if (rand.NextDouble() <= probability)
                     return dict.TryGetTranscription(word.Text)!;
