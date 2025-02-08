@@ -10,6 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="rhyme-index-generator\**" />
+    <EmbeddedResource Remove="rhyme-index-generator\**" />
+    <None Remove="rhyme-index-generator\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="sources\ipaConfig.xml" />
     <None Remove="sources\localizations\en_US.xml" />
     <None Remove="sources\lyricsMarkov.hayley" />
