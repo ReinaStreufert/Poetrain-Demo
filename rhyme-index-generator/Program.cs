@@ -6,16 +6,9 @@ using System.Xml;
 var ipa = IPAData.ParsePhonologyData();
 var provider = new PhonologyProvider(ipa);
 var dict = provider.LoadLocale("en_US");
-var predictionTable = MarkovData.LoadMarkovTable(EmbeddedSource.GetEmbeddedStream("lyricsMarkov.hayley"));
-var englishWords = predictionTable.PredictNext()
-    .Select(p => p.Key.Text)
-    .ToArray();
 Dictionary<string, List<string>> rhymeIndex = new Dictionary<string, List<string>>();
-foreach (var word in englishWords)
+foreach (var transcription in dict)
 {
-    var transcription = dict.TryGetTranscription(word);
-    if (transcription == null)
-        continue;
     foreach (var pronnunc in transcription)
     {
         var vowelStr = pronnunc.ToVowelString().ToString();
@@ -25,7 +18,7 @@ foreach (var word in englishWords)
             wordList = new List<string>();
             rhymeIndex.Add(vowelStr, wordList);
         }
-        wordList.Add(word);
+        wordList.Add(transcription.Word);
     }
 }
 

@@ -51,7 +51,7 @@ namespace poetrain.Phonology
         public IPhoneticDictionary LoadLocale(string languageCode);
     }
 
-    public interface IPhoneticDictionary
+    public interface IPhoneticDictionary : IEnumerable<ITranscription>
     {
         public IPhonologyProvider Provider { get; }
         public IPALanguage Language { get; }

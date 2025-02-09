@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -44,6 +45,28 @@ namespace poetrain.Phonology
             _TranscriptionBuilder.Clear();
             _TranscriptionCache.Add(word, transcription);
             return transcription;
+        }
+
+        private IEnumerable<ITranscription> EnumerateTranscriptions()
+        {
+            foreach (var pair in _RawTranscriptions)
+            {
+                var word = pair.Key;
+                var ipa = pair.Value;
+                if (_TranscriptionCache.TryGetValue(word, out var transcription))
+                    yield return transcription;
+                else yield return Transcribe(word, ipa);
+            }
+        }
+
+        public IEnumerator<ITranscription> GetEnumerator()
+        {
+            return EnumerateTranscriptions().GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return EnumerateTranscriptions().GetEnumerator();
         }
     }
 }
