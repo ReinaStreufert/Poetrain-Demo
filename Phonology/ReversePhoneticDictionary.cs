@@ -20,6 +20,21 @@ namespace poetrain.Phonology
                 .ToImmutableDictionary());
         }
 
+        public static ReversePhoneticDictionary FromTranscriptions(IEnumerable<ITranscription> transcriptions, IPredictionTable markov)
+        {
+            return new ReversePhoneticDictionary(transcriptions
+                .SelectMany(t => t)
+                .Where(p => p.SyllableCount > 0)
+                .Select(p => (p, markov.TryGetWord(p.Transcription.Word)))
+                .Where(w => w.Item2 != null)
+                .GroupBy(w => w.p.ToVowelString())
+                .Select(g => new KeyValuePair<VowelString, IPronnunciation[]>(g.Key, g
+                .OrderByDescending(w => markov.GetProbability(ReadOnlySpan<IWord>.Empty, w.Item2))
+                .Select(w => w.p)
+                .ToArray()))
+                .ToImmutableDictionary());
+        }
+
         private ReversePhoneticDictionary(ImmutableDictionary<VowelString, IPronnunciation[]> index)
         {
             _Index = index;
@@ -50,7 +65,7 @@ namespace poetrain.Phonology
             var rhymeLists = syllableSplit
                 .Select(p => FindRhymes(p
                 .ToVowelString())
-                .Where(p => markov.TryGetWord(p.Transcription.Word) != null)
+                .Take(200) // consider only the top 200 words for optimization
                 .ToArray())
                 .ToArray();
             if (rhymeLists
