@@ -21,31 +21,19 @@ namespace poetrain
             var dict = provider.LoadLocale("en_US");
             var predictionTable = MarkovData.LoadMarkovTable(EmbeddedSource.GetEmbeddedStream("lyricsMarkov.hayley"));
             var reverseDict = ReversePhoneticDictionary.FromTranscriptions(dict, predictionTable);
-            //var rand = new Random();
-            //var englishWords = predictionTable.PredictNext() // empty window gets probabilities for all words
-            //.ToArray();
+            var rand = new Random();
+            var englishWords = predictionTable.PredictNext() // empty window gets probabilities for all words
+                .Select(p => dict.TryGetTranscription(p.Key.Text))
+                .Where(t => t != null)
+                .Skip(10) // skip extremely common words
+                .Take(1000) // take next 1000 most common words
+                .ToArray();
             var reverseRhymer = new ReverseRhymer(dict, reverseDict, predictionTable);
             await reverseRhymer.EnterLoop(CancellationToken.None);
-            //var challenge = new TimeChallenge(dict, reverseDict, predictionTable, () => PickWord(englishWords, rand, dict));
+            //var challenge = new TimeChallenge(dict, reverseDict, predictionTable, () => englishWords[rand.Next(englishWords.Length)]!);
             //await challenge.EnterChallengeLoop(CancellationToken.None);
             //Application.Run(new DemoWindow(dict, predictionTable, new Random()));
             //Console.Write("Enter a word or phrase: ")
-        }
-
-        private static ITranscription PickWord(KeyValuePair<IWord, float>[] englishWords, Random rand, IPhoneticDictionary dict)
-        {
-            const float maxProbability = 0.05f; // filter out boring challenge words like "the", "and", "for"
-            for (; ;)
-            {
-                var index = rand.Next(englishWords.Length);
-                var pair = englishWords[index];
-                var probability = pair.Value; // my fancy math was useless
-                if (probability > maxProbability)
-                    continue;
-                var word = pair.Key;
-                if (rand.NextDouble() <= probability)
-                    return dict.TryGetTranscription(word.Text)!;
-            }
         }
     }
 }

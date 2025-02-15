@@ -60,9 +60,10 @@ namespace poetrain.Phonology
             for (int i = altOffset; i < rangeCount; i++)
             {
                 var range = larger.GetConsonantRange(i);
-                var closest = ScoreRhyme(range, alt.GetConsonantRange(i - altOffset));
-                var past = ScoreRhyme(range, alt.GetConsonantRange(i - altOffset - 1));
-                var future = ScoreRhyme(range, alt.GetConsonantRange(i - altOffset + 1));
+                var isFirst = (i == altOffset);
+                var closest = ScoreRhyme(range, alt.GetConsonantRange(i - altOffset), isFirst);
+                var past = ScoreRhyme(range, alt.GetConsonantRange(i - altOffset - 1), isFirst);
+                var future = ScoreRhyme(range, alt.GetConsonantRange(i - altOffset + 1), isFirst);
                 sum += Math.Max(closest, 0.5f * Math.Max(past, future));
             }
             return rangeCount > 0 ? sum / rangeCount : 1f;
@@ -92,7 +93,7 @@ namespace poetrain.Phonology
             return stressCount > 0 ? sum / stressCount : 1f;
         }
 
-        private static float ScoreRhyme(ReadOnlySpan<ISemiSyllable> a, ReadOnlySpan<ISemiSyllable> b)
+        private static float ScoreRhyme(ReadOnlySpan<ISemiSyllable> a, ReadOnlySpan<ISemiSyllable> b, bool isWordBegin)
         {
             var larger = a.Length > b.Length ? a : b;
             var alt = a.Length > b.Length ? b : a;
@@ -103,9 +104,18 @@ namespace poetrain.Phonology
                 var largestMatch = 0f;
                 for (int j = 0; j < alt.Length; j++)
                     largestMatch = Math.Max(largestMatch, phonym.ScoreRhyme(alt[j]));
-                sum += largestMatch;
+                if (alt.Length == 0)
+                    largestMatch = 0.5f;
+                // first consonant of each consonant bridge is more important... "can" is a stretch with "cat" but "nat" works with "tack"
+                if (i == 0 && !isWordBegin)
+                    sum += largestMatch * 2;
+                else
+                    sum += largestMatch;
             }
-            return larger.Length > 0 ? sum / larger.Length : 1f;
+            if (larger.Length == 0)
+                return 1f;
+            else
+                return sum / (isWordBegin ? larger.Length : larger.Length + 1);
         }
 
         private enum ConsonantSide

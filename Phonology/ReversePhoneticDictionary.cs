@@ -45,13 +45,13 @@ namespace poetrain.Phonology
         public IEnumerable<KeyValuePair<IPronnunciation, float>> FindRhymes(IPronnunciation pronnunciation)
         {
             var vowelString = pronnunciation.ToVowelString();
-            return _Index[vowelString]
+            return FindRhymes(vowelString)
                 .Select(p => new KeyValuePair<IPronnunciation, float>(p, pronnunciation.ScoreRhyme(p).Value));
         }
 
         public IEnumerable<IPronnunciation> FindRhymes(VowelString vowelString)
         {
-            return _Index[vowelString];
+            return _Index.TryGetValue(vowelString, out var result) ? result : Enumerable.Empty<IPronnunciation>();
         }
 
         public IEnumerable<KeyValuePair<IPronnunciation, float>> FindRhymes(IPronnunciation pronnunciation, IPredictionTable markov)
