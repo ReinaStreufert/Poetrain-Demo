@@ -40,7 +40,8 @@ namespace poetrain.Phonology
 
         public IEnumerable<KeyValuePair<IPronnunciation, float>> FindRhymes(IPronnunciation pronnunciation, IPredictionTable markov)
         {
-
+            return GetSyllableSplitCombinations(pronnunciation)
+                .SelectMany(s => FindRhymes(pronnunciation, s, markov));
         }
 
         private IEnumerable<KeyValuePair<IPronnunciation, float>> FindRhymes(IPronnunciation pronnunciation, IPronnunciation[] syllableSplit, IPredictionTable markov)
@@ -48,13 +49,36 @@ namespace poetrain.Phonology
             var rhymeLists = syllableSplit
                 .Select(p => FindRhymes(p
                 .ToVowelString())
+                .Where(p => markov.TryGetWord(p.Transcription.Word) != null)
                 .ToArray())
                 .ToArray();
             var rhymeListIndices = new int[rhymeLists.Length];
-
+            do yield return Score(pronnunciation, rhymeListIndices, rhymeLists, markov);
+            while (IncrementRhymeListIndices(rhymeListIndices, rhymeLists));
         }
 
-        private KeyValuePair<IPronnunciation, float> 
+        private KeyValuePair<IPronnunciation, float> Score(IPronnunciation pronnunciation, int[] rhymeListIndices, IPronnunciation[][] rhymeLists, IPredictionTable markov)
+        {
+            IPronnunciation? rhymePronnunc = null;
+            var predictWindow = new PredictionWindow(markov.WindowLength);
+            var probabilitySum = 0f;
+            for (int i = 0; i < rhymeLists.Length; i++)
+            {
+                var rhymeList = rhymeLists[i];
+                var rhymeListIndex = rhymeListIndices[i];
+                var rhyme = rhymeList[rhymeListIndex];
+                if (rhymePronnunc == null)
+                    rhymePronnunc = rhyme;
+                else
+                    rhymePronnunc = new Pronnunciation(rhymePronnunc.Provider, rhymePronnunc.Transcription, PronnunciationData.Concat(rhymePronnunc.Data, rhyme.Data));
+                var rhymeWord = markov.TryGetWord(rhyme.Transcription.Word);
+                if (rhymeWord != null)
+                    probabilitySum += markov.GetProbability(predictWindow.Words, rhymeWord);
+            }
+            var probabilityAvg = probabilitySum / rhymeLists.Length;
+            var rhymeScore = pronnunciation.ScoreRhyme(rhymePronnunc!).Value;
+            return new KeyValuePair<IPronnunciation, float>(rhymePronnunc, rhymeScore * probabilityAvg);
+        }
 
         private bool IncrementRhymeListIndices(int[] rhymeListIndices, IPronnunciation[][] rhymeLists)
         {
