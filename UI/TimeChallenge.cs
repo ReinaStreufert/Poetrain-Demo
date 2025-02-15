@@ -1,4 +1,5 @@
 ﻿using poetrain.Data;
+using poetrain.Markov;
 using poetrain.Phonology;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,8 @@ namespace poetrain.UI
     public class TimeChallenge
     {
         private IPhoneticDictionary _Dict;
+        private IReversePhoneticDictionary _ReverseDict;
+        private IPredictionTable _Markov;
         private Func<ITranscription> _ChallengeWordSource;
         private StatusBar _StatusBar = new StatusBar();
         private InputLog _InputLog = new InputLog();
@@ -19,9 +22,11 @@ namespace poetrain.UI
         private int _DurationSeconds;
         private int _Score = 0;
 
-        public TimeChallenge(IPhoneticDictionary dict, Func<ITranscription> challengeWordSource, int durationSeconds = 30)
+        public TimeChallenge(IPhoneticDictionary dict, IReversePhoneticDictionary reverseDict, IPredictionTable markov, Func<ITranscription> challengeWordSource, int durationSeconds = 30)
         {
             _Dict = dict;
+            _ReverseDict = reverseDict;
+            _Markov = markov;
             _ChallengeWordSource = challengeWordSource;
             _DurationSeconds = durationSeconds;
         }
@@ -39,9 +44,14 @@ namespace poetrain.UI
                 await _InputBar.LoopReadAsync((t) => HandleInput(t, challengeWord), cancelTokenSource.Token);
                 _StatusBar.Draw($"Score: {_Score} / High: {Persistence.HighScore} / Press any key to continue...");
                 _InputLog.ClearLog();
-                var pastRhymeInputs = Persistence.GetPastRhymes(challengeWord);
+                /*var pastRhymeInputs = Persistence.GetPastRhymes(challengeWord);
                 if (pastRhymeInputs != null)
-                    _InputLog.ShowPastInputs(pastRhymeInputs);
+                    _InputLog.ShowPastInputs(pastRhymeInputs);*/
+                var suggestionRhymes = challengeWord
+                    .SelectMany(p => _ReverseDict.FindRhymes(p, _Markov))
+                    .OrderByDescending(p => p.Value)
+                    .Select(p => p.Key.Transcription.Word);
+                _InputLog.ShowPastInputs(suggestionRhymes);
                 Persistence.Save();
                 await _InputBar.PauseTillKeyAsync();
             }

@@ -1,4 +1,5 @@
 ﻿using poetrain.Data;
+using poetrain.Markov;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -65,6 +66,7 @@ namespace poetrain.Phonology
     {
         public IEnumerable<KeyValuePair<IPronnunciation, float>> FindRhymes(IPronnunciation pronnunciation);
         public IEnumerable<IPronnunciation> FindRhymes(VowelString vowelString);
+        public IEnumerable<KeyValuePair<IPronnunciation, float>> FindRhymes(IPronnunciation pronnunciation, IPredictionTable markov);
     }
 
     public interface ITranscription : IEnumerable<IPronnunciation>

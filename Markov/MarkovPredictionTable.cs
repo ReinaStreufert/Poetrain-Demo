@@ -37,12 +37,27 @@ namespace poetrain.Markov
             var currentNode = _RootNode;
             foreach (var word in window)
             {
+                predictions.SetRange(currentNode.NextWordProbabilities);
                 if (currentNode.BackWindowNodes.TryGetValue(word, out var node))
                     currentNode = node;
-                predictions.SetRange(currentNode.NextWordProbabilities);
+                else
+                    break;
             }
             return predictions
                 .OrderByDescending(p => p.Value);
+        }
+
+        public float GetProbability(ReadOnlySpan<IWord> window, IWord nextWord)
+        {
+            var currentNode = _RootNode;
+            foreach (var word in window)
+            {
+                if (currentNode.BackWindowNodes.TryGetValue(word, out var node) && node.NextWordProbabilities.ContainsKey(nextWord))
+                    currentNode = node;
+                else
+                    break;
+            }
+            return currentNode.NextWordProbabilities[nextWord];
         }
 
         public IWord? TryGetWord(string text)

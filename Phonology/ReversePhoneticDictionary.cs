@@ -14,6 +14,7 @@ namespace poetrain.Phonology
         {
             return new ReversePhoneticDictionary(transcriptions
                 .SelectMany(t => t)
+                .Where(p => p.SyllableCount > 0)
                 .GroupBy(p => p.ToVowelString())
                 .Select(g => new KeyValuePair<VowelString, IPronnunciation[]>(g.Key, g.ToArray()))
                 .ToImmutableDictionary());

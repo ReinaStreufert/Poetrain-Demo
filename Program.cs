@@ -19,13 +19,15 @@ namespace poetrain
             var ipa = IPAData.ParsePhonologyData(EmbeddedSource.GetEmbeddedXml("ipaConfig.xml"));
             var provider = new PhonologyProvider(ipa);
             var dict = provider.LoadLocale("en_US");
+            var reverseDict = ReversePhoneticDictionary.FromTranscriptions(dict);
             var predictionTable = MarkovData.LoadMarkovTable(EmbeddedSource.GetEmbeddedStream("lyricsMarkov.hayley"));
             var rand = new Random();
             var englishWords = predictionTable.PredictNext() // empty window gets probabilities for all words
                 .ToArray();
-            var challenge = new TimeChallenge(dict, () => PickWord(englishWords, rand, dict));
+            var challenge = new TimeChallenge(dict, reverseDict, predictionTable, () => PickWord(englishWords, rand, dict));
             await challenge.EnterChallengeLoop(CancellationToken.None);
             //Application.Run(new DemoWindow(dict, predictionTable, new Random()));
+            //Console.Write("Enter a word or phrase: ")
         }
 
         private static ITranscription PickWord(KeyValuePair<IWord, float>[] englishWords, Random rand, IPhoneticDictionary dict)
