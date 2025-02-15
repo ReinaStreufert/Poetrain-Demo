@@ -79,10 +79,11 @@ namespace poetrain.Phonology
                 var rhymeWord = markov.TryGetWord(rhyme.Transcription.Word);
                 if (rhymeWord != null)
                     probabilitySum += markov.GetProbability(predictWindow.Words, rhymeWord);
+                predictWindow.Push(rhymeWord!); // there is no way i forgot to add this omg
             }
             var probabilityAvg = probabilitySum / rhymeLists.Length;
             var rhymeScore = pronnunciation.ScoreRhyme(rhymePronnunc!).Value;
-            return new KeyValuePair<IPronnunciation, float>(rhymePronnunc, rhymeScore * probabilityAvg);
+            return new KeyValuePair<IPronnunciation, float>(rhymePronnunc!, rhymeScore * probabilityAvg);
         }
 
         private bool IncrementRhymeListIndices(int[] rhymeListIndices, IPronnunciation[][] rhymeLists)
