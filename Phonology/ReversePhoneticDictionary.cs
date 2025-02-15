@@ -53,6 +53,10 @@ namespace poetrain.Phonology
                 .Where(p => markov.TryGetWord(p.Transcription.Word) != null)
                 .ToArray())
                 .ToArray();
+            if (rhymeLists
+                .Where(l => l.Length == 0)
+                .Any())
+                yield break;
             var rhymeListIndices = new int[rhymeLists.Length];
             do yield return Score(pronnunciation, rhymeListIndices, rhymeLists, markov);
             while (IncrementRhymeListIndices(rhymeListIndices, rhymeLists));
@@ -71,7 +75,7 @@ namespace poetrain.Phonology
                 if (rhymePronnunc == null)
                     rhymePronnunc = rhyme;
                 else
-                    rhymePronnunc = new Pronnunciation(rhymePronnunc.Provider, rhymePronnunc.Transcription, PronnunciationData.Concat(rhymePronnunc.Data, rhyme.Data));
+                    rhymePronnunc = IPronnunciation.Concat(rhymePronnunc, rhyme);
                 var rhymeWord = markov.TryGetWord(rhyme.Transcription.Word);
                 if (rhymeWord != null)
                     probabilitySum += markov.GetProbability(predictWindow.Words, rhymeWord);
@@ -112,17 +116,18 @@ namespace poetrain.Phonology
             var data = pronnunciation.Data;
             var syllableRngIndex = 0;
             var syllableRngCount = 1;
-            for (int i = 0; i < pronnunciation.SyllableCount - 1; i++)
+            for (int i = 1; i < pronnunciation.SyllableCount; i++)
             {
                 if ((breakpointMap & 1) > 0)
                 {
                     yield return
                         new Pronnunciation(pronnunciation.Provider, pronnunciation.Transcription, data.Subpronnunciation(syllableRngIndex, syllableRngCount));
-                    syllableRngIndex = syllableRngIndex + syllableRngCount;
+                    syllableRngIndex = i;
                     syllableRngCount = 1;
                 }
                 else
                     syllableRngCount++;
+                breakpointMap >>= 1; // super important line that i forgot [sob]
             }
             yield return
                         new Pronnunciation(pronnunciation.Provider, pronnunciation.Transcription, data.Subpronnunciation(syllableRngIndex, syllableRngCount));

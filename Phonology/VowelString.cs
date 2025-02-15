@@ -25,6 +25,8 @@ namespace poetrain.Phonology
 
         public override int GetHashCode()
         {
+            if (Vowels.Length == 0)
+                return 0;
             var hashCode = Vowels[0].GetHashCode();
             for (int i = 1; i < Vowels.Length; i++)
                 hashCode = HashCode.Combine(hashCode, Vowels[i].GetHashCode());

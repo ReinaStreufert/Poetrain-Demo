@@ -117,6 +117,22 @@ namespace poetrain.Phonology
         public ISemiSyllable this[int phonymIndex] { get; }
         public PronnunciationData Data { get; }
         public VowelString ToVowelString();
+
+        public static IPronnunciation Concat(IPronnunciation a, IPronnunciation b)
+        {
+            var provider = a.Provider;
+            if (provider != b.Provider)
+                throw new ArgumentException("The transcriptions are not from the same providers");
+            var aTranscrip = a.Transcription;
+            var bTranscrip = b.Transcription;
+            var concatTranscrip = new Transcription(aTranscrip.Dictionary, $"{aTranscrip.Word} {bTranscrip.Word}", YieldConcatPronnunc(a, b));
+            return concatTranscrip[0];
+        }
+
+        private static IEnumerable<PronnunciationData> YieldConcatPronnunc(IPronnunciation a, IPronnunciation b)
+        {
+            yield return PronnunciationData.Concat(a.Data, b.Data);
+        }
     }
 
     public interface IPronnunciationData

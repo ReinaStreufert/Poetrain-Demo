@@ -49,7 +49,7 @@ namespace poetrain.Phonology
         public IPhonologyProvider Provider { get; }
         public ITranscription Transcription { get; }
         public ISemiSyllable this[int phonymIndex] => _Data.Phonyms[phonymIndex];
-        public int SyllableCount => _Data.Phonyms.Length;
+        public int SyllableCount => _Data.SyllableRanges.Length;
         public int PhonymCount => _Data.Phonyms.Length;
         public PronnunciationData Data => _Data;
 
