@@ -105,7 +105,7 @@ namespace poetrain.Phonology
         }
     }
 
-    public struct PronnunciationData : IPronnunciationData
+    /*public struct PronnunciationData : IPronnunciationData
     {
         public ISemiSyllable[] Phonyms => _Phonyms;
         public SyllableRange[] SyllableRanges => _SyllableRanges;
@@ -196,5 +196,5 @@ namespace poetrain.Phonology
         {
             return _Phonyms[_SyllableRanges[syllableIndex].VowelIndex];
         }
-    }
+    }*/
 }

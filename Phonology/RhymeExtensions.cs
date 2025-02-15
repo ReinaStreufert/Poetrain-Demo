@@ -105,17 +105,17 @@ namespace poetrain.Phonology
                 for (int j = 0; j < alt.Length; j++)
                     largestMatch = Math.Max(largestMatch, phonym.ScoreRhyme(alt[j]));
                 if (alt.Length == 0)
-                    largestMatch = 0.5f;
+                    largestMatch = 1f;
                 // first consonant of each consonant bridge is more important... "can" is a stretch with "cat" but "nat" works with "tack"
                 if (i == 0 && !isWordBegin)
-                    sum += largestMatch * 2;
+                    sum += largestMatch * 3;
                 else
                     sum += largestMatch;
             }
             if (larger.Length == 0)
                 return 1f;
             else
-                return sum / (isWordBegin ? larger.Length : larger.Length + 1);
+                return sum / (isWordBegin ? larger.Length : larger.Length + 2);
         }
 
         private enum ConsonantSide

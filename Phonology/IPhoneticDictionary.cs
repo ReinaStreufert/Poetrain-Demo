@@ -143,6 +143,11 @@ namespace poetrain.Phonology
         public ReadOnlySpan<ISemiSyllable> GetConsonantRange(int consonantRangeIndex);
     }
 
+    public interface ISyllable
+    {
+
+    }
+
     public interface ISemiSyllable
     {
         public SemiSyllableType Type { get; }
