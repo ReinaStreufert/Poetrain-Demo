@@ -52,12 +52,12 @@ namespace poetrain.Markov
             var currentNode = _RootNode;
             foreach (var word in window)
             {
-                if (currentNode.BackWindowNodes.TryGetValue(word, out var node) && node.NextWordProbabilities.ContainsKey(nextWord))
+                if (currentNode.BackWindowNodes.TryGetValue(word, out var node))
                     currentNode = node;
                 else
                     break;
             }
-            return currentNode.NextWordProbabilities[nextWord];
+            return currentNode.NextWordProbabilities.TryGetValue(nextWord, out var result) ? result : 0f;
         }
 
         public IWord? TryGetWord(string text)

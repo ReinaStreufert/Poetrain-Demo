@@ -24,8 +24,10 @@ namespace poetrain
             var rand = new Random();
             var englishWords = predictionTable.PredictNext() // empty window gets probabilities for all words
                 .ToArray();
-            var challenge = new TimeChallenge(dict, reverseDict, predictionTable, () => PickWord(englishWords, rand, dict));
-            await challenge.EnterChallengeLoop(CancellationToken.None);
+            var reverseRhymer = new ReverseRhymer(dict, reverseDict, predictionTable);
+            await reverseRhymer.EnterLoop(CancellationToken.None);
+            //var challenge = new TimeChallenge(dict, reverseDict, predictionTable, () => PickWord(englishWords, rand, dict));
+            //await challenge.EnterChallengeLoop(CancellationToken.None);
             //Application.Run(new DemoWindow(dict, predictionTable, new Random()));
             //Console.Write("Enter a word or phrase: ")
         }

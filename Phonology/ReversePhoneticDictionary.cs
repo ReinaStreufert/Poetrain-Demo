@@ -91,7 +91,7 @@ namespace poetrain.Phonology
             for (int i = 0; i < rhymeLists.Length; i++)
             {
                 var newIndex = rhymeListIndices[i] + 1;
-                if (rhymeListIndices[i] >= rhymeLists[i].Length)
+                if (newIndex >= rhymeLists[i].Length)
                     rhymeListIndices[i] = 0;
                 else
                 {
@@ -104,8 +104,7 @@ namespace poetrain.Phonology
 
         private IEnumerable<IPronnunciation[]> GetSyllableSplitCombinations(IPronnunciation pronnunciation)
         {
-            
-            var breakpoints = Math.Pow(pronnunciation.SyllableCount - 1, 2); // pow2 for number of binary combinations of a point between syllables being 0 unbroken or 1 broken
+            var breakpoints = Math.Pow(2, pronnunciation.SyllableCount - 1); // omg not pow2, 2 to the pow of.
             for (int i = 0; i < breakpoints; i++)
                 yield return GetSyllableSplitCombination(pronnunciation, i)
                     .ToArray();
