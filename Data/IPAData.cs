@@ -106,11 +106,12 @@ namespace poetrain.Data
             var langCode = attributes["code"]!.Value!;
             var langName = attributes["name"]!.Value!;
             var dictSrcName = attributes["dictSrcName"]!.Value!;
+            var indexSrcName = attributes["indexSrcName"]!.Value!;
             var allPhonyms = consonants
                 .Concat(monopthongs.Values)
                 .Concat(dipthongs);
             var phonymPairs = allPhonyms.Select(p => new KeyValuePair<string, ISemiSyllable>(p.IPAString, p));
-            return new LocalizationPhonology(new IPALanguage(langCode, langName), dictSrcName, phonymPairs, config);
+            return new LocalizationPhonology(new IPALanguage(langCode, langName), dictSrcName, indexSrcName, phonymPairs, config);
         }
 
         private static IMonoPhonym ParseMonoPhonym(XmlElement phonymNode, SemiSyllableType type, SlantGrid grid)

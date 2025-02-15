@@ -38,6 +38,7 @@ namespace poetrain.Phonology
     public interface ILocalizationPhonology
     {
         public string DictionarySrcName { get; }
+        public string IndexSrcName { get; }
         public IPALanguage Language { get; }
         public ISemiSyllable? TrySemiSyllableFromIPA(string ipa);
         public IIPAConfig Config { get; }
@@ -58,6 +59,12 @@ namespace poetrain.Phonology
         public float StressScoreAggregationWeight { get; }
         public bool ContainsWord(string word);
         public ITranscription? TryGetTranscription(string word);
+    }
+
+    public interface IReversePhoneticDictionary
+    {
+        public IEnumerable<KeyValuePair<IPronnunciation, float>> FindRhymes(IPronnunciation pronnunciation);
+        public IEnumerable<IPronnunciation> FindRhymes(VowelString vowelString);
     }
 
     public interface ITranscription : IEnumerable<IPronnunciation>

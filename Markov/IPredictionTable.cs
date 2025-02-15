@@ -14,6 +14,8 @@ namespace poetrain.Markov
         public IWord? TryGetWord(string text);
         public IEnumerable<KeyValuePair<IWord, float>> PredictNext(params IWord[] window);
         public IEnumerable<KeyValuePair<IWord, float>> PredictNext(ReadOnlySpan<IWord> window);
+        public bool TryGetProbability(ReadOnlySpan<IWord> window, out float probability);
+
         public MarkovPredictionNode GetRootNode();
     }
 

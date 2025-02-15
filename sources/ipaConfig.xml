@@ -10,7 +10,7 @@
     <primaryStress>ˈ</primaryStress>
     <secondaryStress>ˌ</secondaryStress>
   </notation>
-  <localization code="en_US" name="English (US)" dictSrcName="localizations/en_US.xml">
+  <localization code="en_US" name="English (US)" dictSrcName="localizations/en_US.xml" indexSrcName="localizations/en_US_index.xml">
     <consonant name="(m)y" ipa="m" slantCoords="0,0,0 0,0,1"/>
     <consonant name="ca(n)" ipa="n" slantCoords="2,0,0 2,0,1"/>
     <consonant name="si(ng)" ipa="ŋ" slantCoords="5,0,0 5,0,1"/>

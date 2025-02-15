@@ -12,12 +12,14 @@ namespace poetrain.Data
     {
         public IPALanguage Language { get; }
         public string DictionarySrcName { get; }
+        public string IndexSrcName { get; }
         public IIPAConfig Config { get; }
 
-        public LocalizationPhonology(IPALanguage language, string dictionarySrcName, IEnumerable<KeyValuePair<string, ISemiSyllable>> phonyms, IIPAConfig config)
+        public LocalizationPhonology(IPALanguage language, string dictionarySrcName, string indexSrcName, IEnumerable<KeyValuePair<string, ISemiSyllable>> phonyms, IIPAConfig config)
         {
             Language = language;
             DictionarySrcName = dictionarySrcName;
+            IndexSrcName = indexSrcName;
             _Phonyms = phonyms.ToImmutableDictionary();
             Config = config;
         }

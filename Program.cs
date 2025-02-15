@@ -25,7 +25,7 @@ namespace poetrain
                 .ToArray();
             var challenge = new TimeChallenge(dict, () => PickWord(englishWords, rand, dict));
             await challenge.EnterChallengeLoop(CancellationToken.None);
-            //Application.Run(new DemoWindow(dict, predictionTable, new Random()))
+            //Application.Run(new DemoWindow(dict, predictionTable, new Random()));
         }
 
         private static ITranscription PickWord(KeyValuePair<IWord, float>[] englishWords, Random rand, IPhoneticDictionary dict)
