@@ -55,7 +55,7 @@ namespace poetrain.Markov
                 if (currentNode.BackWindowNodes.TryGetValue(word, out var node))
                     currentNode = node;
                 else
-                    break;
+                    return 0f;
             }
             return currentNode.NextWordProbabilities.TryGetValue(nextWord, out var result) ? result : 0f;
         }

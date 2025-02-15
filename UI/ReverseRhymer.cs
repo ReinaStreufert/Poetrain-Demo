@@ -29,6 +29,9 @@ namespace poetrain.UI
             await _InputBar.LoopReadAsync((text) =>
             {
                 _InputLog.ClearLog();
+                var oneWordsOnly = text.Length > 0 && text[text.Length - 1] == '*';
+                if (oneWordsOnly)
+                    text = text.TrimEnd('*');
                 var transcriptionArray = text
                 .Split(' ')
                 .Select(_Dict.TryGetTranscription)
@@ -39,12 +42,12 @@ namespace poetrain.UI
                     return;
                 var transcription = ITranscription.Concat(transcriptionArray!);
                 var suggestionRhymes = transcription
-                    .SelectMany(p => _ReverseDict.FindRhymes(p, _Markov))
+                    .SelectMany(p => oneWordsOnly ? _ReverseDict.FindRhymes(p) : _ReverseDict.FindRhymes(p, _Markov))
                     .OrderByDescending(p => p.Value)
                     .Select(p => p.Key.Transcription.Word)
                     .Distinct();
                 _InputLog.ShowPastInputs(suggestionRhymes);
-            }, cancelToken, "Enter words or phrases");
+            }, cancelToken, "Enter words or phrases [add * to end for one word rhymes only]");
         }
     }
 }
