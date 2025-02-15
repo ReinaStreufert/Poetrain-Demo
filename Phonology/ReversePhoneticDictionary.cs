@@ -66,7 +66,7 @@ namespace poetrain.Phonology
         {
             IPronnunciation? rhymePronnunc = null;
             var predictWindow = new PredictionWindow(markov.WindowLength);
-            var probabilitySum = 0f;
+            var probabilityMin = float.MaxValue;
             for (int i = 0; i < rhymeLists.Length; i++)
             {
                 var rhymeList = rhymeLists[i];
@@ -78,12 +78,12 @@ namespace poetrain.Phonology
                     rhymePronnunc = IPronnunciation.Concat(rhymePronnunc, rhyme);
                 var rhymeWord = markov.TryGetWord(rhyme.Transcription.Word);
                 if (rhymeWord != null)
-                    probabilitySum += markov.GetProbability(predictWindow.Words, rhymeWord);
+                    probabilityMin = Math.Min(probabilityMin, markov.GetProbability(predictWindow.Words, rhymeWord));
                 predictWindow.Push(rhymeWord!); // there is no way i forgot to add this omg
             }
-            var probabilityAvg = probabilitySum / rhymeLists.Length;
+            //var probabilityAvg = probabilityMin / rhymeLists.Length;
             var rhymeScore = pronnunciation.ScoreRhyme(rhymePronnunc!).Value;
-            return new KeyValuePair<IPronnunciation, float>(rhymePronnunc!, rhymeScore * probabilityAvg);
+            return new KeyValuePair<IPronnunciation, float>(rhymePronnunc!, rhymeScore * probabilityMin);
         }
 
         private bool IncrementRhymeListIndices(int[] rhymeListIndices, IPronnunciation[][] rhymeLists)
