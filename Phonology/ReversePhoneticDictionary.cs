@@ -65,7 +65,7 @@ namespace poetrain.Phonology
             var rhymeLists = syllableSplit
                 .Select(p => FindRhymes(p
                 .ToVowelString())
-                .Take(200) // consider only the top 200 words for optimization
+                .Take(50) // consider only the top 200 words for optimization
                 .ToArray())
                 .ToArray();
             if (rhymeLists

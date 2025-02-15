@@ -41,7 +41,8 @@ namespace poetrain.UI
                 var suggestionRhymes = transcription
                     .SelectMany(p => _ReverseDict.FindRhymes(p, _Markov))
                     .OrderByDescending(p => p.Value)
-                    .Select(p => p.Key.Transcription.Word);
+                    .Select(p => p.Key.Transcription.Word)
+                    .Distinct();
                 _InputLog.ShowPastInputs(suggestionRhymes);
             }, cancelToken, "Enter words or phrases");
         }

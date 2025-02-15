@@ -19,11 +19,11 @@ namespace poetrain
             var ipa = IPAData.ParsePhonologyData(EmbeddedSource.GetEmbeddedXml("ipaConfig.xml"));
             var provider = new PhonologyProvider(ipa);
             var dict = provider.LoadLocale("en_US");
-            var reverseDict = ReversePhoneticDictionary.FromTranscriptions(dict);
             var predictionTable = MarkovData.LoadMarkovTable(EmbeddedSource.GetEmbeddedStream("lyricsMarkov.hayley"));
-            var rand = new Random();
-            var englishWords = predictionTable.PredictNext() // empty window gets probabilities for all words
-                .ToArray();
+            var reverseDict = ReversePhoneticDictionary.FromTranscriptions(dict, predictionTable);
+            //var rand = new Random();
+            //var englishWords = predictionTable.PredictNext() // empty window gets probabilities for all words
+            //.ToArray();
             var reverseRhymer = new ReverseRhymer(dict, reverseDict, predictionTable);
             await reverseRhymer.EnterLoop(CancellationToken.None);
             //var challenge = new TimeChallenge(dict, reverseDict, predictionTable, () => PickWord(englishWords, rand, dict));
