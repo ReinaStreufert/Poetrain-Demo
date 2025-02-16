@@ -158,6 +158,19 @@ namespace poetrain.Phonology
             return new PronnunciationData(body, b.Cap);
         }
 
+        public static PronnunciationData GetSubRange<TPronnunciationData>(TPronnunciationData pronnunc, int startOffset, int count) where TPronnunciationData : IPronnunciationData<ISyllableData>
+        {
+            if (startOffset + count > pronnunc.SyllableCount || startOffset < 0)
+                throw new IndexOutOfRangeException($"the parameters are outside the bounds of the pronnunciation");
+            var syllArr = new SyllableData[count];
+            for (int i = startOffset; i < startOffset + count; i++)
+            {
+                var syll = pronnunc.Body[i];
+                syllArr[i - startOffset] = new SyllableData(syll.BeginConsonants, syll.Vowel, syll.EndConsonant, syll.Stress);
+            }
+            return new PronnunciationData(syllArr, count == pronnunc.SyllableCount ? pronnunc.Cap : new ISemiSyllable[0] { });
+        }
+
         public static float ScoreRhyme<TPronnunciationData>(IPhonologyProvider provider, TPronnunciationData a, TPronnunciationData b) where TPronnunciationData : IPronnunciationData<TSyllableData>
         {
             var larger = a.SyllableCount > b.SyllableCount ? a : b;
@@ -174,20 +187,6 @@ namespace poetrain.Phonology
                     ISyllableData.ScoreRhyme(provider, aSyll, bSyll);
             }
             return sum / larger.SyllableCount;
-        }
-
-        private static float ScoreCap<TPronnunciationData>(IPhonologyProvider provider, TPronnunciationData a, TPronnunciationData b) where TPronnunciationData : IPronnunciationData<TSyllableData>
-        {
-            var larger = a.Cap.Length > b.Cap.Length ? a.Cap : b.Cap;
-            var smaller = a.Cap.Length > b.Cap.Length ? b.Cap : a.Cap;
-            var sum = 0f;
-            foreach (var phonym in larger)
-            {
-                sum += smaller
-                    .Select(phonym.ScoreRhyme)
-                    .Max();
-            }
-            return sum / larger.Length;
         }
     }
 
