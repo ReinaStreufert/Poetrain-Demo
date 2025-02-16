@@ -13,7 +13,7 @@ namespace poetrain.Phonology
         public SyllableData[] Body { get; }
         public ISemiSyllable[] Cap { get; }
 
-        public PronnunciationData(int syllableCount, SyllableData[] body, ISemiSyllable[] cap)
+        public PronnunciationData(SyllableData[] body, ISemiSyllable[] cap)
         {
             Body = body;
             Cap = cap;

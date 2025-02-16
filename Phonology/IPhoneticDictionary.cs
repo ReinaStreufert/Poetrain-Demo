@@ -103,7 +103,7 @@ namespace poetrain.Phonology
                 .Select(p => p.Data);
             var concatPronnunciations = aPronnunciations
                 .SelectMany(x => bPronnunciations
-                .Select(y => PronnunciationData.Concat(x, y)));
+                .Select(y => IPronnunciationData<SyllableData>.Concat(x, y)));
             return new Transcription(dict, $"{a.Word} {b.Word}", concatPronnunciations);
         }
     }
@@ -131,7 +131,7 @@ namespace poetrain.Phonology
 
         private static IEnumerable<PronnunciationData> YieldConcatPronnunc(IPronnunciation a, IPronnunciation b)
         {
-            yield return PronnunciationData.Concat(a.Data, b.Data);
+            yield return IPronnunciationData<SyllableData>.Concat(a.Data, b.Data);
         }
     }
 
@@ -140,6 +140,25 @@ namespace poetrain.Phonology
         public int SyllableCount { get; }
         public TSyllableData[] Body { get; }
         public ISemiSyllable[] Cap { get; }
+
+        public static PronnunciationData Concat<TPronnunciationData>(TPronnunciationData a, TPronnunciationData b) where TPronnunciationData : IPronnunciationData<TSyllableData>
+        {
+            SyllableData[] body = new SyllableData[a.SyllableCount + b.SyllableCount];
+            for (int i = 0; i < a.SyllableCount; i++)
+            {
+                var syll = a.Body[i];
+                body[i] = new SyllableData(syll.BeginConsonants, syll.Vowel, syll.EndConsonant, syll.Stress);
+            }
+            for (int i = a.SyllableCount; i < body.Length; i++)
+            {
+                var syll = b.Body[i - a.SyllableCount];
+                if (i == a.SyllableCount)
+                    body[i] = new SyllableData(a.Cap.Concat(syll.BeginConsonants).ToArray(), syll.Vowel, syll.EndConsonant, syll.Stress);
+                else
+                    body[i] = new SyllableData(syll.BeginConsonants, syll.Vowel, syll.EndConsonant, syll.Stress);
+            }
+            return new PronnunciationData(body, b.Cap);
+        }
 
         public static float ScoreRhyme<TPronnunciationData>(IPhonologyProvider provider, TPronnunciationData a, TPronnunciationData b) where TPronnunciationData : IPronnunciationData<TSyllableData>
         {
@@ -159,7 +178,7 @@ namespace poetrain.Phonology
             return sum / larger.SyllableCount;
         }
 
-        public static float ScoreCap<TPronnunciationData>(IPhonologyProvider provider, TPronnunciationData a, TPronnunciationData b) where TPronnunciationData : IPronnunciationData<TSyllableData>
+        private static float ScoreCap<TPronnunciationData>(IPhonologyProvider provider, TPronnunciationData a, TPronnunciationData b) where TPronnunciationData : IPronnunciationData<TSyllableData>
         {
             var larger = a.Cap.Length > b.Cap.Length ? a.Cap : b.Cap;
             var smaller = a.Cap.Length > b.Cap.Length ? b.Cap : a.Cap;
