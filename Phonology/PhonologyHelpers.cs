@@ -38,14 +38,6 @@ namespace poetrain.Phonology
             return float.IsNaN(avg) ? 1f : avg;
         }
 
-        public static ISemiSyllable[] ToPhonymArray(this IPronnunciation pronnunciation)
-        {
-            var arr = new ISemiSyllable[pronnunciation.PhonymCount];
-            for (int i = 0; i < arr.Length; i++)
-                arr[i] = pronnunciation[i];
-            return arr;
-        }
-
         public static IEnumerable<ITranscriptionToken> TokensFromIPAString(this ILocalizationPhonology localization, string ipaString)
         {
             var bufferedChars = new StringBuilder();
