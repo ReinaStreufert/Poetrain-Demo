@@ -143,7 +143,20 @@ namespace poetrain.Phonology
 
         public static float ScoreRhyme<TPronnunciationData>(IPhonologyProvider provider, TPronnunciationData a, TPronnunciationData b) where TPronnunciationData : IPronnunciationData<TSyllableData>
         {
+            var larger = a.SyllableCount > b.SyllableCount ? a : b;
+            var smaller = a.SyllableCount < b.SyllableCount ? a : b;
+            var smallerOffset = larger.SyllableCount - smaller.SyllableCount;
+
             var sum = 0f;
+            for (int i = smallerOffset; i < larger.SyllableCount; i++)
+            {
+                var aSyll = larger.Body[i];
+                var bSyll = smaller.Body[i - smallerOffset];
+                sum += i == larger.SyllableCount - 1 ? 
+                    ISyllableData.ScoreRhyme(provider, aSyll, bSyll, a.Cap, b.Cap) :
+                    ISyllableData.ScoreRhyme(provider, aSyll, bSyll);
+            }
+            return sum / larger.SyllableCount;
         }
 
         public static float ScoreCap<TPronnunciationData>(IPhonologyProvider provider, TPronnunciationData a, TPronnunciationData b) where TPronnunciationData : IPronnunciationData<TSyllableData>
