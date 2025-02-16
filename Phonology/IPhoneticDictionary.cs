@@ -168,8 +168,24 @@ namespace poetrain.Phonology
             {
                 sum += smaller
                     .Select(phonym.ScoreRhyme)
-                    .Max()
+                    .Max();
             }
+            return sum / larger.Length;
+        }
+
+        public static float ScoreEndConsonant<TSyllableData>(TSyllableData a, TSyllableData b) where TSyllableData : ISyllableData
+        {
+            var basicScore = (a.EndConsonant == null || b.EndConsonant == null) ? 0.5f :
+                a.EndConsonant.ScoreRhyme(b.EndConsonant);
+            var aConsonantShiftScore = a.EndConsonant == null ? 0f :
+                b.BeginConsonants
+                .Select(a.EndConsonant.ScoreRhyme)
+                .Max();
+            var bConsonantShiftScore = b.EndConsonant == null ? 0f :
+                a.BeginConsonants
+                .Select(b.EndConsonant.ScoreRhyme)
+                .Max();
+            return Math.Max(basicScore, 0.5f * Math.Max(aConsonantShiftScore, bConsonantShiftScore));
         }
     }
 
