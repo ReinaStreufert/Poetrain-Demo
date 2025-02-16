@@ -19,30 +19,37 @@ namespace poetrain.Phonology
                 _Pronnunciations = pronnunciationList;
             }
 
-            private int _StartIndex = 0;
-            private int _VowelIndex = -1;
-            private List<ISemiSyllable> _Phonyms = new List<ISemiSyllable>();
-            private List<SyllableRange> _SyllableRanges = new List<SyllableRange>();
+            private List<SyllableData> _CurrentPronnunc = new List<SyllableData>();
             private List<PronnunciationData> _Pronnunciations;
+            private List<ISemiSyllable> _BeginConsonants = new List<ISemiSyllable>();
+            private ISemiSyllable? _Vowel;
             private SyllableStress _Stress = SyllableStress.Unstressed;
             private SyllableStress _NextStress = SyllableStress.Unstressed;
 
             public void Consonant(ISemiSyllable consonant)
             {
-                _Phonyms.Add(consonant);
+                if (_Vowel == null)
+                    _BeginConsonants.Add(consonant);
+                else
+                {
+                    _CurrentPronnunc.Add(new SyllableData(_BeginConsonants.ToArray(), _Vowel, consonant, _Stress));
+                    _BeginConsonants.Clear();
+                    _Vowel = null;
+                    _Stress = _NextStress;
+                    _NextStress = SyllableStress.Unstressed;
+                }
             }
 
             public void Vowel(ISemiSyllable vowel)
             {
-                if (_VowelIndex > -1)
+                if (_Vowel != null)
                 {
-                    _SyllableRanges.Add(new SyllableRange(_StartIndex, _VowelIndex, _Phonyms.Count - _StartIndex, _Stress));
-                    _StartIndex = _VowelIndex + 1;
+                    _CurrentPronnunc.Add(new SyllableData(_BeginConsonants.ToArray(), _Vowel, null, _Stress));
+                    _BeginConsonants.Clear();
+                    _Stress = _NextStress;
+                    _NextStress = SyllableStress.Unstressed;
                 }
-                _VowelIndex = _Phonyms.Count;
-                _Stress = _NextStress;
-                _NextStress = SyllableStress.Unstressed;
-                _Phonyms.Add(vowel);
+                _Vowel = vowel;
             }
 
             public void Stress(SyllableStress stressType)
@@ -52,15 +59,17 @@ namespace poetrain.Phonology
 
             public void EndPronnunciation()
             {
-                if (_VowelIndex > -1)
-                    _SyllableRanges.Add(new SyllableRange(_StartIndex, _VowelIndex, _Phonyms.Count - _StartIndex, _Stress));
-                _Stress = SyllableStress.Unstressed;
+                if (_Vowel != null)
+                {
+                    _CurrentPronnunc.Add(new SyllableData(_BeginConsonants.ToArray(), _Vowel, null, _Stress));
+                    _BeginConsonants.Clear();
+                }
+                _Pronnunciations.Add(new PronnunciationData(_CurrentPronnunc.ToArray(), _BeginConsonants.ToArray()));
+                _BeginConsonants.Clear();
+                _CurrentPronnunc.Clear();
+                _Vowel = null;
                 _NextStress = SyllableStress.Unstressed;
-                _StartIndex = 0;
-                _VowelIndex = -1;
-                _Pronnunciations.Add(new PronnunciationData(_Phonyms.ToArray(), _SyllableRanges.ToArray()));
-                _Phonyms.Clear();
-                _SyllableRanges.Clear();
+                _Stress = SyllableStress.Unstressed;
             }
         }
     }
