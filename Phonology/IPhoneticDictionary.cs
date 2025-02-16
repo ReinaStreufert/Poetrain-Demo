@@ -140,6 +140,25 @@ namespace poetrain.Phonology
         public int SyllableCount { get; }
         public TSyllableData[] Body { get; }
         public ISemiSyllable[] Cap { get; }
+
+        public static float ScoreRhyme<TPronnunciationData>(IPhonologyProvider provider, TPronnunciationData a, TPronnunciationData b) where TPronnunciationData : IPronnunciationData<TSyllableData>
+        {
+            var sum = 0f;
+        }
+
+        public static float ScoreCap<TPronnunciationData>(IPhonologyProvider provider, TPronnunciationData a, TPronnunciationData b) where TPronnunciationData : IPronnunciationData<TSyllableData>
+        {
+            var larger = a.Cap.Length > b.Cap.Length ? a.Cap : b.Cap;
+            var smaller = a.Cap.Length > b.Cap.Length ? b.Cap : a.Cap;
+            var sum = 0f;
+            foreach (var phonym in larger)
+            {
+                sum += smaller
+                    .Select(phonym.ScoreRhyme)
+                    .Max();
+            }
+            return sum / larger.Length;
+        }
     }
 
     public interface ISyllableData
@@ -152,7 +171,16 @@ namespace poetrain.Phonology
         public static float ScoreRhyme<TSyllableData>(IPhonologyProvider provider, TSyllableData a, TSyllableData b) where TSyllableData : ISyllableData
         {
             var vowels = ScoreVowels(a, b);
-            var beginConsonants = ScoreBeginConsonants(a, b);
+            var beginConsonants = ScoreBeginConsonants(a.BeginConsonants, b.BeginConsonants);
+            var endConsonants = ScoreEndConsonant(a, b);
+            var stress = ScoreStress(a, b);
+            return provider.ScoreAggregation.AggregateScores(stress, vowels, beginConsonants, endConsonants);
+        }
+
+        public static float ScoreRhyme<TSyllableData>(IPhonologyProvider provider, TSyllableData a, TSyllableData b, ISemiSyllable[] capA, ISemiSyllable[] capB) where TSyllableData : ISyllableData
+        {
+            var vowels = ScoreVowels(a, b);
+            var beginConsonants = (ScoreBeginConsonants(a.BeginConsonants, b.BeginConsonants) + ScoreBeginConsonants(capA, capB)) / 2f;
             var endConsonants = ScoreEndConsonant(a, b);
             var stress = ScoreStress(a, b);
             return provider.ScoreAggregation.AggregateScores(stress, vowels, beginConsonants, endConsonants);
@@ -163,10 +191,10 @@ namespace poetrain.Phonology
             return a.Vowel.ScoreRhyme(b.Vowel);
         }
 
-        private static float ScoreBeginConsonants<TSyllableData>(TSyllableData a, TSyllableData b) where TSyllableData : ISyllableData
+        private static float ScoreBeginConsonants(ISemiSyllable[] a, ISemiSyllable[] b)
         {
-            var larger = a.BeginConsonants.Length > b.BeginConsonants.Length ? a.BeginConsonants : b.BeginConsonants;
-            var smaller = a.BeginConsonants.Length > b.BeginConsonants.Length ? b.BeginConsonants : a.BeginConsonants;
+            var larger = a.Length > b.Length ? a : b;
+            var smaller = a.Length > b.Length ? b : a;
             var sum = 0f;
             foreach (var phonym in larger)
             {
