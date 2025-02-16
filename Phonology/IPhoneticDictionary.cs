@@ -159,6 +159,11 @@ namespace poetrain.Phonology
             return a.Vowel.ScoreRhyme(b.Vowel);
         }
 
+        private static float ScoreConsonants<TSyllableData>(TSyllableData a, TSyllableData b) where TSyllableData : ISyllableData
+        {
+            return (ScoreBeginConsonants(a, b) * 0.25f) + (ScoreBeginConsonants(a, b) * 0.75f);
+        }
+
         private static float ScoreBeginConsonants<TSyllableData>(TSyllableData a, TSyllableData b) where TSyllableData : ISyllableData
         {
             var larger = a.BeginConsonants.Length > b.BeginConsonants.Length ? a.BeginConsonants : b.BeginConsonants;
