@@ -135,10 +135,10 @@ namespace poetrain.Phonology
         }
     }
 
-    public interface IPronnunciationData
+    public interface IPronnunciationData<TSyllableData> where TSyllableData : ISyllableData
     {
         public int SyllableCount { get; }
-        public ISyllableData[] Body { get; }
+        public TSyllableData[] Body { get; }
         public ISemiSyllable[] Cap { get; }
     }
 
@@ -151,17 +151,16 @@ namespace poetrain.Phonology
 
         public static float ScoreRhyme<TSyllableData>(IPhonologyProvider provider, TSyllableData a, TSyllableData b) where TSyllableData : ISyllableData
         {
-
+            var vowels = ScoreVowels(a, b);
+            var beginConsonants = ScoreBeginConsonants(a, b);
+            var endConsonants = ScoreEndConsonant(a, b);
+            var stress = ScoreStress(a, b);
+            return provider.ScoreAggregation.AggregateScores(stress, vowels, beginConsonants, endConsonants);
         }
 
         private static float ScoreVowels<TSyllableData>(TSyllableData a, TSyllableData b) where TSyllableData : ISyllableData
         {
             return a.Vowel.ScoreRhyme(b.Vowel);
-        }
-
-        private static float ScoreConsonants<TSyllableData>(TSyllableData a, TSyllableData b) where TSyllableData : ISyllableData
-        {
-            return (ScoreBeginConsonants(a, b) * 0.25f) + (ScoreBeginConsonants(a, b) * 0.75f);
         }
 
         private static float ScoreBeginConsonants<TSyllableData>(TSyllableData a, TSyllableData b) where TSyllableData : ISyllableData
@@ -191,6 +190,11 @@ namespace poetrain.Phonology
                 .Select(b.EndConsonant.ScoreRhyme)
                 .Max();
             return Math.Max(basicScore, 0.5f * Math.Max(aConsonantShiftScore, bConsonantShiftScore));
+        }
+
+        public static float ScoreStress<TSyllableData>(TSyllableData a, TSyllableData b) where TSyllableData : ISyllableData
+        {
+            return 1f - (Math.Abs((int)a.Stress - (int)b.Stress) / (int)SyllableStress.Primary);
         }
     }
 
