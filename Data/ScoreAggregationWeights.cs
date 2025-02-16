@@ -14,10 +14,11 @@ namespace poetrain.Data
         public float EndConsonant { get; }
         public float Vowels { get; }
 
-        public ScoreAggregationWeights(float stresses, float beingConsonantsScore, float vowel)
+        public ScoreAggregationWeights(float stresses, float beingConsonantsScore, float endConsonantScore, float vowel)
         {
             Stresses = stresses;
             BeginConsonants = beingConsonantsScore;
+            EndConsonant = endConsonantScore;
             Vowels = vowel;
         }
 
@@ -26,7 +27,8 @@ namespace poetrain.Data
             return (
                 (stressScore * Stresses) +
                 (vowelScore * Vowels) +
-                (beginConsonantsScore * BeginConsonants)) /
+                (beginConsonantsScore * BeginConsonants)) +
+                (endConsonantScore * EndConsonant) /
                 (Stresses + BeginConsonants + Vowels);
         }
     }

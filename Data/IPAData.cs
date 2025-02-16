@@ -66,10 +66,11 @@ namespace poetrain.Data
         private static ScoreAggregationWeights ParseScoreAggrWeights(XmlElement scoringNode)
         {
             var stressWeight = float.Parse(scoringNode["stress"]!.Attributes["importance"]!.Value);
-            var consonantWeight = float.Parse(scoringNode["consonant"]!.Attributes["importance"]!.Value);
+            var beginConsonantsWeight = float.Parse(scoringNode["beginConsonantsWeight"]!.Attributes["importance"]!.Value);
+            var endConsonantWeight = float.Parse(scoringNode["endConsonantWeight"]!.Attributes["importance"]!.Value);
             var vowelWeight = float.Parse(scoringNode["vowel"]!.Attributes["importance"]!.Value);
-            var sum = stressWeight + consonantWeight + vowelWeight;
-            return new ScoreAggregationWeights(stressWeight / sum, consonantWeight / sum, vowelWeight / sum);
+            var sum = stressWeight + beginConsonantsWeight + endConsonantWeight + vowelWeight;
+            return new ScoreAggregationWeights(stressWeight / sum, beginConsonantsWeight / sum, endConsonantWeight / sum, vowelWeight / sum);
         }
 
         private static MarkupChars ParseMarkupChars(XmlElement notationNode)
