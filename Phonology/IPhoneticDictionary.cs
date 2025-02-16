@@ -224,6 +224,8 @@ namespace poetrain.Phonology
         {
             var larger = a.Length > b.Length ? a : b;
             var smaller = a.Length > b.Length ? b : a;
+            if (smaller.Length == 0)
+                return 0.5f;
             var sum = 0f;
             foreach (var phonym in larger)
             {
@@ -238,11 +240,11 @@ namespace poetrain.Phonology
         {
             var basicScore = (a.EndConsonant == null || b.EndConsonant == null) ? 0.5f :
                 a.EndConsonant.ScoreRhyme(b.EndConsonant);
-            var aConsonantShiftScore = a.EndConsonant == null && b.BeginConsonants.Length > 0 ? 0f :
+            var aConsonantShiftScore = a.EndConsonant != null && b.BeginConsonants.Length > 0 ? 0f :
                 b.BeginConsonants
                 .Select(a.EndConsonant.ScoreRhyme)
                 .Max();
-            var bConsonantShiftScore = b.EndConsonant == null && a.BeginConsonants.Length > 0 ? 0f :
+            var bConsonantShiftScore = b.EndConsonant != null && a.BeginConsonants.Length > 0 ? 0f :
                 a.BeginConsonants
                 .Select(b.EndConsonant.ScoreRhyme)
                 .Max();
