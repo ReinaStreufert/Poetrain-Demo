@@ -108,13 +108,11 @@ namespace poetrain.Phonology
         }
     }
 
-    public interface IPronnunciation : IEnumerable<ISemiSyllable>
+    public interface IPronnunciation
     {
         public IPhonologyProvider Provider { get; }
         public ITranscription Transcription { get; }
-        public int PhonymCount { get; }
         public int SyllableCount { get; }
-        public ISemiSyllable this[int phonymIndex] { get; }
         public PronnunciationData Data { get; }
         public VowelString ToVowelString();
 
