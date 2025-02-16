@@ -158,7 +158,7 @@ namespace poetrain.Phonology
             return new PronnunciationData(body, b.Cap);
         }
 
-        public static PronnunciationData GetSubRange<TPronnunciationData>(TPronnunciationData pronnunc, int startOffset, int count) where TPronnunciationData : IPronnunciationData<ISyllableData>
+        public static PronnunciationData GetSubRange<TPronnunciationData>(TPronnunciationData pronnunc, int startOffset, int count) where TPronnunciationData : IPronnunciationData<TSyllableData>
         {
             if (startOffset + count > pronnunc.SyllableCount || startOffset < 0)
                 throw new IndexOutOfRangeException($"the parameters are outside the bounds of the pronnunciation");

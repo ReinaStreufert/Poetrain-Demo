@@ -136,7 +136,7 @@ namespace poetrain.Phonology
                 if ((breakpointMap & 1) > 0)
                 {
                     yield return
-                        new Pronnunciation(pronnunciation.Provider, pronnunciation.Transcription, data.Subpronnunciation(syllableRngIndex, syllableRngCount));
+                        new Pronnunciation(pronnunciation.Provider, pronnunciation.Transcription, IPronnunciationData<SyllableData>.GetSubRange(pronnunciation.Data, syllableRngIndex, syllableRngCount));
                     syllableRngIndex = i;
                     syllableRngCount = 1;
                 }
@@ -145,7 +145,7 @@ namespace poetrain.Phonology
                 breakpointMap >>= 1; // super important line that i forgot [sob]
             }
             yield return
-                        new Pronnunciation(pronnunciation.Provider, pronnunciation.Transcription, data.Subpronnunciation(syllableRngIndex, syllableRngCount));
+                        new Pronnunciation(pronnunciation.Provider, pronnunciation.Transcription, IPronnunciationData<SyllableData>.GetSubRange(pronnunciation.Data, syllableRngIndex, syllableRngCount));
         }
     }
 }
