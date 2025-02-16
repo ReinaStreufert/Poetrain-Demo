@@ -98,7 +98,7 @@ namespace poetrain.Phonology
             }
             //var probabilityAvg = probabilityMin / rhymeLists.Length;
             var rhymeScore = pronnunciation.ScoreRhyme(rhymePronnunc!).Value;
-            return new KeyValuePair<IPronnunciation, float>(rhymePronnunc!, (rhymeScore * 0.5f) + (probabilityMin * 0.5f));
+            return new KeyValuePair<IPronnunciation, float>(rhymePronnunc!, rhymeScore * probabilityMin);
         }
 
         private bool IncrementRhymeListIndices(int[] rhymeListIndices, IPronnunciation[][] rhymeLists)
