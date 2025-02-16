@@ -138,14 +138,39 @@ namespace poetrain.Phonology
     public interface IPronnunciationData
     {
         public int SyllableCount { get; }
-        public SyllableStress GetSyllableStress(int syllableIndex);
-        public ISemiSyllable GetVowelBridge(int syllableIndex);
-        public ReadOnlySpan<ISemiSyllable> GetConsonantRange(int consonantRangeIndex);
+        public ISyllableData[] Body { get; }
+        public ISemiSyllable[] Cap { get; }
     }
 
-    public interface ISyllable
+    public interface ISyllableData
     {
+        public ISemiSyllable[] BeginConsonants { get; }
+        public ISemiSyllable Vowel { get; }
+        public ISemiSyllable? EndConsonant { get; }
+        public SyllableStress Stress { get; }
 
+        public static float ScoreRhyme<TSyllableData>(IPhonologyProvider provider, TSyllableData a, TSyllableData b) where TSyllableData : ISyllableData
+        {
+
+        }
+
+        private static float ScoreVowels<TSyllableData>(TSyllableData a, TSyllableData b) where TSyllableData : ISyllableData
+        {
+            return a.Vowel.ScoreRhyme(b.Vowel);
+        }
+
+        private static float ScoreBeginConsonants<TSyllableData>(TSyllableData a, TSyllableData b) where TSyllableData : ISyllableData
+        {
+            var larger = a.BeginConsonants.Length > b.BeginConsonants.Length ? a.BeginConsonants : b.BeginConsonants;
+            var smaller = a.BeginConsonants.Length > b.BeginConsonants.Length ? b.BeginConsonants : a.BeginConsonants;
+            var sum = 0f;
+            foreach (var phonym in larger)
+            {
+                sum += smaller
+                    .Select(phonym.ScoreRhyme)
+                    .Max()
+            }
+        }
     }
 
     public interface ISemiSyllable
