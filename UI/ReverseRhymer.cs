@@ -44,8 +44,7 @@ namespace poetrain.UI
                 var suggestionRhymes = transcription
                     .SelectMany(p => oneWordsOnly ? _ReverseDict.FindRhymes(p) : _ReverseDict.FindRhymes(p, _Markov))
                     .OrderByDescending(p => p.Value)
-                    .Select(p => p.Key.Transcription.Word)
-                    .Distinct();
+                    .Select(p => p.Key.Transcription.Word);
                 _InputLog.ShowPastInputs(suggestionRhymes);
             }, cancelToken, "Enter words or phrases [add * to end for one word rhymes only]");
         }

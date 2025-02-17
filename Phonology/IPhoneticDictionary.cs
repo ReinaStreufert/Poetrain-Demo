@@ -225,7 +225,7 @@ namespace poetrain.Phonology
             var larger = a.Length > b.Length ? a : b;
             var smaller = a.Length > b.Length ? b : a;
             if (smaller.Length == 0)
-                return 1f;
+                return larger.Length == 0 ? 1f : 0f;
             var sum = 0f;
             foreach (var phonym in larger)
             {

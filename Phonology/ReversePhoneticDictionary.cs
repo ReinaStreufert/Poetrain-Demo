@@ -46,7 +46,9 @@ namespace poetrain.Phonology
         {
             var vowelString = pronnunciation.ToVowelString();
             return FindRhymes(vowelString)
-                .Select(p => new KeyValuePair<IPronnunciation, float>(p, pronnunciation.ScoreRhyme(p).Value));
+                .Select(p => new KeyValuePair<IPronnunciation, float>(p, pronnunciation.ScoreRhyme(p).Value))
+                .GroupBy(p => p.Key.Transcription.Word)
+                .Select(g => g.MaxBy(p => p.Value));
         }
 
         public IEnumerable<IPronnunciation> FindRhymes(VowelString vowelString)
@@ -57,7 +59,9 @@ namespace poetrain.Phonology
         public IEnumerable<KeyValuePair<IPronnunciation, float>> FindRhymes(IPronnunciation pronnunciation, IPredictionTable markov)
         {
             return GetSyllableSplitCombinations(pronnunciation)
-                .SelectMany(s => FindRhymes(pronnunciation, s, markov));
+                .SelectMany(s => FindRhymes(pronnunciation, s, markov))
+                .GroupBy(p => p.Key.Transcription.Word)
+                .Select(g => g.MaxBy(p => p.Value));
         }
 
         private IEnumerable<KeyValuePair<IPronnunciation, float>> FindRhymes(IPronnunciation pronnunciation, IPronnunciation[] syllableSplit, IPredictionTable markov)
