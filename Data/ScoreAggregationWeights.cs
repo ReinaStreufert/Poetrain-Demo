@@ -29,7 +29,7 @@ namespace poetrain.Data
                 (vowelScore * Vowels) +
                 (beginConsonantsScore * BeginConsonants)) +
                 (endConsonantScore * EndConsonant) /
-                (Stresses + BeginConsonants + Vowels);
+                (Stresses + BeginConsonants + EndConsonant + Vowels);
         }
     }
 }

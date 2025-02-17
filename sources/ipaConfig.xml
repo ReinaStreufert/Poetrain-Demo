@@ -1,7 +1,7 @@
 ﻿<ipaConfig>
   <scoring>
     <stress importance="1"/>
-    <beginConsonants importance="2"/>
+    <beginConsonants importance="1"/>
     <endConsonant importance="3"/>
     <vowel importance="5"/>
   </scoring>
