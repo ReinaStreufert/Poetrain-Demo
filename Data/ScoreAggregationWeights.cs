@@ -27,8 +27,8 @@ namespace poetrain.Data
             return (
                 (stressScore * Stresses) +
                 (vowelScore * Vowels) +
-                (beginConsonantsScore * BeginConsonants)) +
-                (endConsonantScore * EndConsonant) /
+                (beginConsonantsScore * BeginConsonants) +
+                (endConsonantScore * EndConsonant)) /
                 (Stresses + BeginConsonants + EndConsonant + Vowels);
         }
     }
