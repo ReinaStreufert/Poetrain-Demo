@@ -62,7 +62,7 @@ namespace poetrain.UI
                     .OrderByDescending(p => p.Value)
                     .Select(p => p.Key.Transcription.Word);
             var oneWordSuggestions = challengeWord
-                    .SelectMany(p => _ReverseDict.FindRhymes(p))
+                    .SelectMany(p => _ReverseDict.FindRhymes(p, false))
                     .OrderByDescending(p => p.Value)
                     .Select(p => p.Key.Transcription.Word);
             var multiWordEnumerator = multiWordSuggestions.GetEnumerator();

@@ -174,7 +174,7 @@ namespace poetrain.Phonology
         public static float ScoreRhyme<TPronnunciationData>(IPhonologyProvider provider, TPronnunciationData a, TPronnunciationData b) where TPronnunciationData : IPronnunciationData<TSyllableData>
         {
             var larger = a.SyllableCount > b.SyllableCount ? a : b;
-            var smaller = a.SyllableCount < b.SyllableCount ? a : b;
+            var smaller = a.SyllableCount > b.SyllableCount ? b : a;
             var smallerOffset = larger.SyllableCount - smaller.SyllableCount;
 
             var sum = 0f;
@@ -238,7 +238,7 @@ namespace poetrain.Phonology
 
         public static float ScoreEndConsonant<TSyllableData>(TSyllableData a, TSyllableData b) where TSyllableData : ISyllableData
         {
-            var basicScore = (a.EndConsonant == null || b.EndConsonant == null) ? 0.5f :
+            var basicScore = (a.EndConsonant == null || b.EndConsonant == null) ? 0f :
                 a.EndConsonant.ScoreRhyme(b.EndConsonant);
             var aConsonantShiftScore = a.EndConsonant == null || b.BeginConsonants.Length == 0 ? 0f :
                 b.BeginConsonants

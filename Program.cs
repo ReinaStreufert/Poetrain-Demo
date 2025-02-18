@@ -26,7 +26,7 @@ namespace poetrain
                 .Select(p => dict.TryGetTranscription(p.Key.Text))
                 .Where(t => t != null)
                 .Skip(10) // skip extremely common words
-                .Take(1000) // take next 1000 most common words
+                .Take(10000) // take next 10,000 most common words
                 .ToArray();
             var reverseRhymer = new ReverseRhymer(dict, reverseDict, predictionTable);
             await reverseRhymer.EnterLoop(CancellationToken.None);
