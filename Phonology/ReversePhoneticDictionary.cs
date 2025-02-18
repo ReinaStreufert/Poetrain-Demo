@@ -17,7 +17,7 @@ namespace poetrain.Phonology
                 .Where(p => p.SyllableCount > 0)
                 .GroupBy(p => p.ToVowelString())
                 .Select(g => new KeyValuePair<VowelString, IPronnunciation[]>(g.Key, g.ToArray()))
-                .ToImmutableDictionary());
+                .ToArray());
         }
 
         public static ReversePhoneticDictionary FromTranscriptions(IEnumerable<ITranscription> transcriptions, IPredictionTable markov)
@@ -32,28 +32,47 @@ namespace poetrain.Phonology
                 .OrderByDescending(w => markov.GetProbability(ReadOnlySpan<IWord>.Empty, w.Item2))
                 .Select(w => w.p)
                 .ToArray()))
-                .ToImmutableDictionary());
+                .ToArray());
         }
 
-        private ReversePhoneticDictionary(ImmutableDictionary<VowelString, IPronnunciation[]> index)
+        private struct IndexPage
         {
-            _Index = index;
+            public IPronnunciation[] StrictMatches;
+            public IPronnunciation[] LengthLenientMatches;
+
+            public IndexPage(IPronnunciation[] strictMatches, IPronnunciation[] lengthLenientMatches)
+            {
+                StrictMatches = strictMatches;
+                LengthLenientMatches = lengthLenientMatches;
+            }
         }
 
-        private ImmutableDictionary<VowelString, IPronnunciation[]> _Index;
+        private ReversePhoneticDictionary(KeyValuePair<VowelString, IPronnunciation[]>[] index)
+        {
+            _Index = index
+                .Select(a => new KeyValuePair<VowelString, IndexPage>(a.Key, new IndexPage(a.Value, index
+                .Where(b => b.Key.EndsWith(a.Key))
+                .SelectMany(b => b.Value)
+                .ToArray())))
+                .ToImmutableDictionary();
+        }
 
-        public IEnumerable<KeyValuePair<IPronnunciation, float>> FindRhymes(IPronnunciation pronnunciation)
+        private ImmutableDictionary<VowelString, IndexPage> _Index;
+
+        public IEnumerable<KeyValuePair<IPronnunciation, float>> FindRhymes(IPronnunciation pronnunciation, bool exactSyllableLen = true)
         {
             var vowelString = pronnunciation.ToVowelString();
-            return FindRhymes(vowelString)
+            return FindRhymes(vowelString, exactSyllableLen)
                 .Select(p => new KeyValuePair<IPronnunciation, float>(p, pronnunciation.ScoreRhyme(p).Value))
                 .GroupBy(p => p.Key.Transcription.Word)
                 .Select(g => g.MaxBy(p => p.Value));
         }
 
-        public IEnumerable<IPronnunciation> FindRhymes(VowelString vowelString)
+        public IEnumerable<IPronnunciation> FindRhymes(VowelString vowelString, bool exactSyllableLen = true)
         {
-            return _Index.TryGetValue(vowelString, out var result) ? result : Enumerable.Empty<IPronnunciation>();
+            if (!_Index.TryGetValue(vowelString, out var result))
+                return Enumerable.Empty<IPronnunciation>();
+            return exactSyllableLen ? result.StrictMatches : result.LengthLenientMatches;
         }
 
         public IEnumerable<KeyValuePair<IPronnunciation, float>> FindRhymes(IPronnunciation pronnunciation, IPredictionTable markov)

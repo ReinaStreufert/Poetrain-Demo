@@ -64,8 +64,8 @@ namespace poetrain.Phonology
 
     public interface IReversePhoneticDictionary
     {
-        public IEnumerable<KeyValuePair<IPronnunciation, float>> FindRhymes(IPronnunciation pronnunciation);
-        public IEnumerable<IPronnunciation> FindRhymes(VowelString vowelString);
+        public IEnumerable<KeyValuePair<IPronnunciation, float>> FindRhymes(IPronnunciation pronnunciation, bool exactSyllableLength = true);
+        public IEnumerable<IPronnunciation> FindRhymes(VowelString vowelString, bool exactSyllableLength = true);
         public IEnumerable<KeyValuePair<IPronnunciation, float>> FindRhymes(IPronnunciation pronnunciation, IPredictionTable markov);
     }
 
@@ -186,7 +186,7 @@ namespace poetrain.Phonology
                     ISyllableData.ScoreRhyme(provider, aSyll, bSyll, a.Cap, b.Cap) :
                     ISyllableData.ScoreRhyme(provider, aSyll, bSyll);
             }
-            return sum / larger.SyllableCount;
+            return sum / smaller.SyllableCount;
         }
     }
 

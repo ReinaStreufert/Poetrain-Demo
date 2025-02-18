@@ -42,7 +42,7 @@ namespace poetrain.UI
                     return;
                 var transcription = ITranscription.Concat(transcriptionArray!);
                 var suggestionRhymes = transcription
-                    .SelectMany(p => oneWordsOnly ? _ReverseDict.FindRhymes(p) : _ReverseDict.FindRhymes(p, _Markov))
+                    .SelectMany(p => oneWordsOnly ? _ReverseDict.FindRhymes(p, false) : _ReverseDict.FindRhymes(p, _Markov))
                     .OrderByDescending(p => p.Value)
                     .Select(p => p.Key.Transcription.Word);
                 _InputLog.ShowPastInputs(suggestionRhymes);

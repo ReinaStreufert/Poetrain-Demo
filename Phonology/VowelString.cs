@@ -16,6 +16,19 @@ namespace poetrain.Phonology
             Vowels = vowels;
         }
 
+        public bool EndsWith(VowelString str)
+        {
+            if (str.Vowels.Length > Vowels.Length)
+                return false;
+            var offset = Vowels.Length - str.Vowels.Length;
+            for (int i = 0; i < str.Vowels.Length; i++)
+            {
+                if (str.Vowels[i] != Vowels[offset + i])
+                    return false;
+            }
+            return true;
+        }
+
         public override bool Equals([NotNullWhen(true)] object? obj)
         {
             if (obj is VowelString vowelStr)
