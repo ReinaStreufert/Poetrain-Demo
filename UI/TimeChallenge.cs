@@ -43,7 +43,7 @@ namespace poetrain.UI
                 _ = StatusCountdownAsync(challengeWord, cancelTokenSource);
                 await _InputBar.LoopReadAsync((t) => HandleInput(t, challengeWord), cancelTokenSource.Token);
                 _StatusBar.Draw($"Score: {_Score} / High: {Persistence.HighScore} / Press escape key to continue...");
-                _InputLog.ClearLog();
+                //_InputLog.ClearLog();
                 /*var pastRhymeInputs = Persistence.GetPastRhymes(challengeWord);
                 if (pastRhymeInputs != null)
                     _InputLog.ShowPastInputs(pastRhymeInputs);*/

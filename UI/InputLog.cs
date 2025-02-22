@@ -76,6 +76,7 @@ namespace poetrain.UI
 
         private int ShowSuggestionRhymeList(IEnumerable<string> suggestions, int offset)
         {
+            ClearLog();
             int w = Console.WindowWidth;
             int h = Console.WindowHeight;
             int currentColX = 0;
