@@ -62,7 +62,7 @@ namespace poetrain.UI
                     listIndex--;
                     list = suggestionLists[listIndex];
                     listScreenEnd = ShowSuggestionRhymeList(list, listOffset);
-                } else if (keyInfo.Key == ConsoleKey.RightArrow && listIndex < listOffsets.Count - 1)
+                } else if (keyInfo.Key == ConsoleKey.RightArrow && listIndex < suggestionLists.Length - 1)
                 {
                     listOffsets.Clear();
                     listOffset = 0;
