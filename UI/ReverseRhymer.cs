@@ -29,9 +29,6 @@ namespace poetrain.UI
             await _InputBar.LoopReadAsync((text) =>
             {
                 _InputLog.ClearLog();
-                var oneWordsOnly = text.Length > 0 && text[text.Length - 1] == '*';
-                if (oneWordsOnly)
-                    text = text.TrimEnd('*');
                 var transcriptionArray = text
                 .Split(' ')
                 .Select(_Dict.TryGetTranscription)
@@ -41,10 +38,19 @@ namespace poetrain.UI
                     .Any())
                     return;
                 var transcription = ITranscription.Concat(transcriptionArray!);
-                var suggestionRhymes = transcription
-                    .SelectMany(p => oneWordsOnly ? _ReverseDict.FindRhymes(p, false) : _ReverseDict.FindRhymes(p, _Markov))
+                var multiWordSuggestions = transcription
+                    .SelectMany(p => _ReverseDict.FindRhymes(p, _Markov))
                     .OrderByDescending(p => p.Value)
                     .Select(p => p.Key.Transcription.Word);
+                var oneWordSuggestions = transcription
+                        .SelectMany(p => _ReverseDict.FindRhymes(p, false))
+                        .OrderByDescending(p => p.Value)
+                        .Select(p => p.Key.Transcription.Word);
+                var oneWordExactSyllables = transcription
+                    .SelectMany(p => _ReverseDict.FindRhymes(p, true))
+                    .OrderByDescending(p => p.Value)
+                    .Select(p => p.Key.Transcription.Word);
+                //await _InputLog.ShowSuggestionListsAsync(oneWordExactSyllables, oneWordSuggestions, multiWordSuggestions);
                 //_InputLog.ShowSuggestionRhymeLists(suggestionRhymes);
             }, cancelToken, "Enter words or phrases [add * to end for one word rhymes only]");
         }

@@ -28,8 +28,8 @@ namespace poetrain
                 .Skip(10) // skip extremely common words
                 .Take(10000) // take next 10,000 most common words
                 .ToArray();
-            var reverseRhymer = new ReverseRhymer(dict, reverseDict, predictionTable);
-            await reverseRhymer.EnterLoop(CancellationToken.None);
+            //var reverseRhymer = new ReverseRhymer(dict, reverseDict, predictionTable);
+            //await reverseRhymer.EnterLoop(CancellationToken.None);
             var challenge = new TimeChallenge(dict, reverseDict, predictionTable, () => englishWords[rand.Next(englishWords.Length)]!);
             await challenge.EnterChallengeLoop(CancellationToken.None);
             //Application.Run(new DemoWindow(dict, predictionTable, new Random()));

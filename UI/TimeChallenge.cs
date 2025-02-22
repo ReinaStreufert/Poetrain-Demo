@@ -42,7 +42,7 @@ namespace poetrain.UI
                 var challengeWord = _ChallengeWordSource();
                 _ = StatusCountdownAsync(challengeWord, cancelTokenSource);
                 await _InputBar.LoopReadAsync((t) => HandleInput(t, challengeWord), cancelTokenSource.Token);
-                _StatusBar.Draw($"Score: {_Score} / High: {Persistence.HighScore} / Press any key to continue...");
+                _StatusBar.Draw($"Score: {_Score} / High: {Persistence.HighScore} / Press escape key to continue...");
                 _InputLog.ClearLog();
                 /*var pastRhymeInputs = Persistence.GetPastRhymes(challengeWord);
                 if (pastRhymeInputs != null)
@@ -61,7 +61,6 @@ namespace poetrain.UI
                     .Select(p => p.Key.Transcription.Word);
                 await _InputLog.ShowSuggestionListsAsync(oneWordExactSyllables, oneWordSuggestions, multiWordSuggestions);
                 Persistence.Save();
-                await _InputBar.PauseTillKeyAsync();
             }
         }
 
