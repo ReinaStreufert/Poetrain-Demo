@@ -47,37 +47,22 @@ namespace poetrain.UI
                 /*var pastRhymeInputs = Persistence.GetPastRhymes(challengeWord);
                 if (pastRhymeInputs != null)
                     _InputLog.ShowPastInputs(pastRhymeInputs);*/
-                var suggestionRhymes = SuggestRhymes(challengeWord)
-                    .Distinct();
-                _InputLog.ShowPastInputs(suggestionRhymes);
-                Persistence.Save();
-                await _InputBar.PauseTillKeyAsync();
-            }
-        }
-
-        private IEnumerable<string> SuggestRhymes(ITranscription challengeWord)
-        {
-            var multiWordSuggestions = challengeWord
+                var multiWordSuggestions = challengeWord
                     .SelectMany(p => _ReverseDict.FindRhymes(p, _Markov))
                     .OrderByDescending(p => p.Value)
                     .Select(p => p.Key.Transcription.Word);
-            var oneWordSuggestions = challengeWord
-                    .SelectMany(p => _ReverseDict.FindRhymes(p, false))
+                var oneWordSuggestions = challengeWord
+                        .SelectMany(p => _ReverseDict.FindRhymes(p, false))
+                        .OrderByDescending(p => p.Value)
+                        .Select(p => p.Key.Transcription.Word);
+                var oneWordExactSyllables = challengeWord
+                    .SelectMany(p => _ReverseDict.FindRhymes(p, true))
                     .OrderByDescending(p => p.Value)
                     .Select(p => p.Key.Transcription.Word);
-            var multiWordEnumerator = multiWordSuggestions.GetEnumerator();
-            var oneWordEnumerator = oneWordSuggestions.GetEnumerator();
-            bool multiWordNext = true, oneWordNext = true;
-            do
-            {
-                multiWordNext = multiWordNext ? multiWordEnumerator.MoveNext() : false;
-                oneWordNext = oneWordNext ? oneWordEnumerator.MoveNext() : false;
-                if (oneWordNext)
-                    yield return oneWordEnumerator.Current;
-                if (multiWordNext)
-                    yield return multiWordEnumerator.Current;
+                await _InputLog.ShowSuggestionListsAsync(oneWordExactSyllables, oneWordSuggestions, multiWordSuggestions);
+                Persistence.Save();
+                await _InputBar.PauseTillKeyAsync();
             }
-            while (multiWordNext || oneWordNext);
         }
 
         private async Task StatusCountdownAsync(ITranscription challengeWord, CancellationTokenSource cancelTokenSource)

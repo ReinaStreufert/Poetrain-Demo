@@ -26,22 +26,66 @@ namespace poetrain.UI
             WriteScore(score, scoreFactor);
         }
 
-        public void ShowPastInputs(IEnumerable<string> pastInputs)
+        public async Task ShowSuggestionListsAsync(params IEnumerable<string>[] suggestionLists)
         {
             var oldFg = FgColor;
             _Console.ForegroundColor = ConsoleColor.Magenta;
             _Console.RenderCursorPosition = (0, 1);
-            _Console.Write("Past inputted rhymes:");
+            _Console.Write("Suggestions (down-up to scroll / right-left change filter / esc to continue)");
             _Console.ForegroundColor = oldFg;
+            var listIndex = 0;
+            var list = suggestionLists[listIndex];
+            var listOffsets = new Stack<int>();
+            var listOffset = 0;
+            var listScreenEnd = ShowSuggestionRhymeList(list, 0);
+
+            var reader = _Console.InputReader;
+            await reader.ReadKeysAsync((keyInfo) =>
+            {
+                if (keyInfo.Key == ConsoleKey.Escape)
+                    return false;
+                if (keyInfo.Key == ConsoleKey.UpArrow && listOffsets.Count > 0)
+                {
+                    listOffset = listOffsets.Pop();
+                    listScreenEnd = ShowSuggestionRhymeList(list, listOffset);
+                }
+                else if (keyInfo.Key == ConsoleKey.DownArrow)
+                {
+                    listOffsets.Push(listOffset);
+                    listOffset = listScreenEnd;
+                    listScreenEnd = ShowSuggestionRhymeList(list, listOffset);
+                }
+                else if (keyInfo.Key == ConsoleKey.LeftArrow && listIndex > 0)
+                {
+                    listOffsets.Clear();
+                    listOffset = 0;
+                    listIndex--;
+                    list = suggestionLists[listIndex];
+                    listScreenEnd = ShowSuggestionRhymeList(list, listOffset);
+                } else if (keyInfo.Key == ConsoleKey.RightArrow && listIndex < listOffsets.Count - 1)
+                {
+                    listOffsets.Clear();
+                    listOffset = 0;
+                    listIndex++;
+                    list = suggestionLists[listIndex];
+                    listScreenEnd = ShowSuggestionRhymeList(list, listOffset);
+                }
+                return true;
+            }, CancellationToken.None);
+        }
+
+        private int ShowSuggestionRhymeList(IEnumerable<string> suggestions, int offset)
+        {
             int w = Console.WindowWidth;
             int h = Console.WindowHeight;
             int currentColX = 0;
             int currentY = 2;
             int currentColWidth = 0;
-            foreach (var pastInput in pastInputs)
+            int itemsPrinted = 0;
+            foreach (var pastInput in suggestions.Skip(offset))
             {
                 if (currentColX + pastInput.Length >= w)
-                    return; // stop at edge of window, ill make it scroll or something like that eventually idk
+                    return itemsPrinted + offset; // stop at edge of window, ill make it scroll or something like that eventually idk
                 _Console.RenderCursorPosition = (currentColX, currentY);
                 _Console.Write(pastInput, false);
                 currentColWidth = Math.Max(currentColWidth, pastInput.Length);
@@ -52,7 +96,9 @@ namespace poetrain.UI
                     currentColX += currentColWidth + 2;
                     currentColWidth = 0;
                 }
+                itemsPrinted++;
             }
+            return itemsPrinted + offset;
         }
 
         private void WriteScore(int score, int scoreFactor)

@@ -13,6 +13,21 @@ namespace poetrain.UI
         public int VisibleCursorTop { get; set; }
         public bool VisibleCursorShown { get; set; }
 
+        public ConsoleInputReader InputReader
+        {
+            get
+            {
+                if (_Reader != null)
+                    return _Reader;
+                lock (_ReaderStartLock)
+                {
+                    if (_Reader == null)
+                        _Reader = StartConsoleReader();
+                }
+                return _Reader;
+            }
+        }
+
         public ConsoleLocks()
         {
             VisibleCursorTop = Console.CursorTop;
@@ -21,6 +36,8 @@ namespace poetrain.UI
         }
 
         private object _RenderLock = new object();
+        private ConsoleInputReader? _Reader;
+        private object _ReaderStartLock = new object();
 
         public void EnterRender(Action callback)
         {
@@ -28,7 +45,7 @@ namespace poetrain.UI
                 callback();
         }
 
-        public ConsoleInputReader StartConsoleReader()
+        private ConsoleInputReader StartConsoleReader()
         {
             var cancelTokenSource = new CancellationTokenSource();
             var readerState = new InputReaderState(cancelTokenSource.Token);

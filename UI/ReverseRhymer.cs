@@ -45,7 +45,7 @@ namespace poetrain.UI
                     .SelectMany(p => oneWordsOnly ? _ReverseDict.FindRhymes(p, false) : _ReverseDict.FindRhymes(p, _Markov))
                     .OrderByDescending(p => p.Value)
                     .Select(p => p.Key.Transcription.Word);
-                _InputLog.ShowPastInputs(suggestionRhymes);
+                //_InputLog.ShowSuggestionRhymeLists(suggestionRhymes);
             }, cancelToken, "Enter words or phrases [add * to end for one word rhymes only]");
         }
     }

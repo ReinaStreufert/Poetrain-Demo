@@ -12,7 +12,7 @@ namespace poetrain.UI
         {
             BgColor = bgColor;
             FgColor = fgColor;
-            _InputReader = _Console.StartConsoleReader();
+            _InputReader = _Console.InputReader;
         }
 
         private ConsoleInputReader _InputReader;

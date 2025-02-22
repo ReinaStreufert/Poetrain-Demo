@@ -40,6 +40,8 @@ namespace poetrain.UI
             }
         }
 
+        public ConsoleInputReader InputReader => _Locks.InputReader;
+
         public ConsoleContext()
         {
 
@@ -61,8 +63,6 @@ namespace poetrain.UI
                 _Locks.RestoreVisibleCursor();
             });
         }
-
-        public ConsoleInputReader StartConsoleReader() => _Locks.StartConsoleReader();
 
         public async Task<string> ReadLineAsync(ConsoleInputReader reader, CancellationToken cancelToken, bool omitLineBreak = false)
         {
