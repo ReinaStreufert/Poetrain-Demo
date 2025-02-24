@@ -2,6 +2,7 @@ using poetrain.Data;
 using poetrain.Markov;
 using poetrain.Phonology;
 using poetrain.UI;
+using poetrain.UI.Forms;
 
 namespace poetrain
 {
@@ -16,6 +17,7 @@ namespace poetrain
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
+            Application.Run(new RTFTests());
             var ipa = IPAData.ParsePhonologyData(EmbeddedSource.GetEmbeddedXml("ipaConfig.xml"));
             var provider = new PhonologyProvider(ipa);
             var dict = provider.LoadLocale("en_US");
@@ -26,13 +28,13 @@ namespace poetrain
                 .Select(p => dict.TryGetTranscription(p.Key.Text))
                 .Where(t => t != null)
                 .Skip(10) // skip extremely common words
-                .Take(10000) // take next 10,000 most common words
+                .Take(5000) // take next 500 most common words
                 .ToArray();
             //var reverseRhymer = new ReverseRhymer(dict, reverseDict, predictionTable);
             //await reverseRhymer.EnterLoop(CancellationToken.None);
             var challenge = new TimeChallenge(dict, reverseDict, predictionTable, () => englishWords[rand.Next(englishWords.Length)]!);
             await challenge.EnterChallengeLoop(CancellationToken.None);
-            //Application.Run(new DemoWindow(dict, predictionTable, new Random()));
+            
             //Console.Write("Enter a word or phrase: ")
         }
     }

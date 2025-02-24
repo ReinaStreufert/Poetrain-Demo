@@ -31,7 +31,7 @@ namespace poetrain.UI
             var oldFg = FgColor;
             _Console.ForegroundColor = ConsoleColor.Magenta;
             _Console.RenderCursorPosition = (0, 1);
-            _Console.Write("Suggestions (down-up to scroll / right-left change filter / esc to continue)");
+            _Console.Write("Suggestions (down-up to scroll / right-left change filter / enter to continue)");
             _Console.ForegroundColor = oldFg;
             var listIndex = 0;
             var list = suggestionLists[listIndex];
@@ -42,7 +42,7 @@ namespace poetrain.UI
             var reader = _Console.InputReader;
             await reader.ReadKeysAsync((keyInfo) =>
             {
-                if (keyInfo.Key == ConsoleKey.Escape)
+                if (keyInfo.Key == ConsoleKey.Enter)
                     return false;
                 if (keyInfo.Key == ConsoleKey.UpArrow && listOffsets.Count > 0)
                 {

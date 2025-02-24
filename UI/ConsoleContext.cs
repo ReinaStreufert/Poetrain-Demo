@@ -68,34 +68,30 @@ namespace poetrain.UI
         {
             var sb = new StringBuilder();
             VisibleCursorPosition = RenderCursorPosition;
-            var sbLock = new object();
             await reader.ReadKeysAsync((key) =>
             {
-                lock (sbLock)
+                if (key.Key == ConsoleKey.Enter)
+                    return false;
+                if (key.Key == ConsoleKey.Backspace)
                 {
-                    if (key.Key == ConsoleKey.Enter)
-                        return false;
-                    if (key.Key == ConsoleKey.Backspace)
+                    if (sb.Length == 0)
                     {
-                        if (sb.Length == 0)
-                        {
-                            VisibleCursorPosition = RenderCursorPosition;
-                            return true;
-                        }
-                        RenderCursorPosition = (RenderCursorPosition.left - 1, RenderCursorPosition.top);
                         VisibleCursorPosition = RenderCursorPosition;
-                        Write(" ", false);
-                        sb.Remove(sb.Length - 1, 1);
+                        return true;
                     }
-                    else if (!key.Modifiers.HasFlag(ConsoleModifiers.Control) && !key.Modifiers.HasFlag(ConsoleModifiers.Alt) && key.KeyChar != '\0')
-                    {
-                        var c = key.KeyChar;
-                        sb.Append(c);
-                        Write(c.ToString());
-                        VisibleCursorPosition = RenderCursorPosition;
-                    }
-                    return true;
+                    RenderCursorPosition = (RenderCursorPosition.left - 1, RenderCursorPosition.top);
+                    VisibleCursorPosition = RenderCursorPosition;
+                    Write(" ", false);
+                    sb.Remove(sb.Length - 1, 1);
                 }
+                else if (!key.Modifiers.HasFlag(ConsoleModifiers.Control) && !key.Modifiers.HasFlag(ConsoleModifiers.Alt) && key.KeyChar != '\0')
+                {
+                    var c = key.KeyChar;
+                    sb.Append(c);
+                    Write(c.ToString());
+                    VisibleCursorPosition = RenderCursorPosition;
+                }
+                return true;
             }, cancelToken);
             if (!omitLineBreak)
             {

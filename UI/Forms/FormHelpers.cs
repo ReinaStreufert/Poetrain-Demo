@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace poetrain.UI
+namespace poetrain.UI.Forms
 {
     public static class FormHelpers
     {
