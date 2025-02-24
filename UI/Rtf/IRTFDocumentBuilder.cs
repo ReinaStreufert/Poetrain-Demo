@@ -11,7 +11,7 @@ namespace poetrain.UI.Rtf
     // of wrapping pronnunciations formatted so that each phonym is colored for how well it matches.
     public interface IRTFDocumentBuilder
     {
-
+        public void Append(IRTFToken token);
     }
 
     public interface IRTFToken
@@ -22,10 +22,17 @@ namespace poetrain.UI.Rtf
     public interface IRTFWriterContext
     {
         public void Write(string rawText);
+        public void Write(IRTFToken token);
+        public void Write(IEnumerable<IRTFToken> tokens);
         public void WriteControlWord(string ctrlWord);
         public void WriteControlWord(string ctrlWordPrefix, object value);
         public void WriteGrouped(IRTFToken token);
         public void WriteGrouped(IEnumerable<IRTFToken> tokens);
-        public void WriteGrouped(Func<IRTFWriterContext> callback);
+        public IRTFColorTable ColorTable { get; }
+    }
+
+    public interface IRTFColorTable : IRTFToken
+    {
+        public int GetOrAddColorIndex(Color color);
     }
 }
