@@ -28,6 +28,7 @@ namespace poetrain.UI.Rtf
         public void WriteControlWord(string ctrlWordPrefix, object value);
         public void WriteGrouped(IRTFToken token);
         public void WriteGrouped(IEnumerable<IRTFToken> tokens);
+        public void WriteDelimiter();
         public IRTFColorTable ColorTable { get; }
     }
 

@@ -19,5 +19,10 @@ namespace poetrain.UI.Rtf
         public const string InTable = "intbl";
         public const string EndCell = "cell";
         public const string EndRow = "row";
+
+        public const string ColorTable = "colortbl";
+        public const string Red = "red";
+        public const string Green = "green";
+        public const string Blue = "blue";
     }
 }

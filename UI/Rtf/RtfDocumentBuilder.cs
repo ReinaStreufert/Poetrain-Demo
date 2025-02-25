@@ -126,6 +126,15 @@ namespace poetrain.UI.Rtf
                 });
                 _LastWasCtrlWord = true;
             }
+
+            public void WriteDelimiter()
+            {
+                _LastWasCtrlWord = true;
+                _Dst.Add(sb =>
+                {
+                    sb.Append(";");
+                });
+            }
         }
     }
 }
