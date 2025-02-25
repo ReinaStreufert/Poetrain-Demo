@@ -8,6 +8,10 @@ namespace poetrain.UI.Rtf
 {
     public static class CtrlWord
     {
+        public const string RtfVer = "rtf1";
+        public const string AnsiCharset = "ansi";
+        public const string DefaultFont = "deff";
+
         public const string ParagraphReset = "pard";
         public const string Plain = "plain";
         public const string TableRow = "trowd";
