@@ -18,6 +18,11 @@ namespace poetrain.Phonology
             Body = body;
             Cap = cap;
         }
+
+        public override string ToString()
+        {
+            return $"{string.Concat(Body.Select(s => s.ToString()))}{string.Concat(Cap.Select(p => p.IPAString))}";
+        }
     }
 
     public struct SyllableData : ISyllableData
@@ -33,6 +38,26 @@ namespace poetrain.Phonology
             Vowel = vowel;
             EndConsonant = endConsonant;
             Stress = stress;
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            if (Stress == SyllableStress.Primary)
+                sb.Append("ˈ");
+            else if (Stress == SyllableStress.Secondary)
+                sb.Append("ˌ");
+            WritePhonyms(sb, BeginConsonants);
+            sb.Append(Vowel.IPAString);
+            if (EndConsonant != null)
+                sb.Append(EndConsonant.IPAString);
+            return sb.ToString();
+        }
+
+        private void WritePhonyms(StringBuilder sb, ISemiSyllable[] phonymArr)
+        {
+            foreach (var phonym in phonymArr)
+                sb.Append(phonym.IPAString);
         }
     }
 }

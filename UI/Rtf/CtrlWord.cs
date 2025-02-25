@@ -10,5 +10,10 @@ namespace poetrain.UI.Rtf
     {
         public const string ParagraphReset = "pard";
         public const string Plain = "plain";
+        public const string TableRow = "trowd";
+        public const string CellX = "cellx";
+        public const string InTable = "intbl";
+        public const string EndCell = "cell";
+        public const string EndRow = "row";
     }
 }

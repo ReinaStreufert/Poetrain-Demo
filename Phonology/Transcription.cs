@@ -62,31 +62,7 @@ namespace poetrain.Phonology
 
         public override string ToString()
         {
-            var sb = new StringBuilder();
-            sb.Append("/");
-            foreach (var syllable in _Data.Body)
-                WriteSyllable(sb, syllable);
-            WritePhonyms(sb, _Data.Cap);
-            sb.Append("/");
-            return sb.ToString();
-        }
-
-        private void WriteSyllable(StringBuilder sb, SyllableData syllable)
-        {
-            if (syllable.Stress == SyllableStress.Primary)
-                sb.Append("ˈ");
-            else if (syllable.Stress == SyllableStress.Secondary)
-                sb.Append("ˌ");
-            WritePhonyms(sb, syllable.BeginConsonants);
-            sb.Append(syllable.Vowel.IPAString);
-            if (syllable.EndConsonant != null)
-                sb.Append(syllable.EndConsonant.IPAString);
-        }
-
-        private void WritePhonyms(StringBuilder sb, ISemiSyllable[] phonymArr)
-        {
-            foreach (var phonym in phonymArr)
-                sb.Append(phonym.IPAString);
+            return _Data.ToString();
         }
 
         public VowelString ToVowelString()

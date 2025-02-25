@@ -34,9 +34,37 @@ namespace poetrain.UI.Rtf
             });
         }
 
-        public static IRTFToken Table(IRTFToken[,] cells, int cellWidthTwips)
+        public static RTFToken ForegroundColor(Color color)
         {
+            return new RTFToken(ctx =>
+            {
+                var colorIndex = ctx.ColorTable.GetOrAddColorIndex(color);
+                ctx.WriteControlWord("cf", colorIndex);
+            });
+        }
 
+        public static IRTFToken Table(IRTFToken[,] cells, int columnWidthTwips)
+        {
+            return new RTFToken(ctx =>
+            {
+                // the rtf definition for a table makes me depressed
+                var colCount = cells.GetLength(0);
+                var rowCount = cells.GetLength(1);
+                for (int row = 0; row < rowCount; row++)
+                {
+                    ctx.WriteControlWord(CtrlWord.TableRow);
+                    for (int col = 0; col < colCount; col++)
+                        ctx.WriteControlWord(CtrlWord.CellX, row * columnWidthTwips);
+                    for (int col = 0; col < colCount; col++)
+                    {
+                        ctx.WriteControlWord(CtrlWord.InTable);
+                        ctx.Write(cells[col, row]);
+                        ctx.WriteControlWord(CtrlWord.EndCell);
+                    }
+                    // why is the order of these ???
+                    ctx.WriteControlWord(CtrlWord.EndRow);
+                }
+            });
         }
     }
 }
