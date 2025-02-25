@@ -18,11 +18,11 @@ namespace poetrain.UI.Forms
             ReadOnly = true;
         }
 
-        private double _PxPerTwip;
+        private double _PxPerTwip = -1;
         private LogSource? _Source;
         private int _ColumnCount;
 
-        public void SetSource(IEnumerable<IPronnunciation> pronnunciationList, IPronnunciation challengeRhyme)
+        public void SetSource(IEnumerable<IPronnunciation> pronnunciationList, ITranscription challengeRhyme)
         {
             _Source = new LogSource(pronnunciationList, challengeRhyme);
             Update(true);
@@ -35,10 +35,22 @@ namespace poetrain.UI.Forms
                 Clear();
                 return;
             }
+            if (_PxPerTwip < 0)
+            {
+                var font = new Font("Segoe UI", 12f, GraphicsUnit.Point);
+                using (var g = CreateGraphics())
+                {
+                    double sizePx = font.GetHeight();
+                    var pxPerPt = sizePx / font.SizeInPoints;
+                    _PxPerTwip = pxPerPt / 20;
+                }
+            }
             var oldColCount = _ColumnCount;
             _ColumnCount = (int)Math.Floor(TwipsFromPx(Width) / (double)ColumnWidthTwips);
-            if (forceRtfUpdate || oldColCount != _ColumnCount)
+            if (_ColumnCount > 0 && (forceRtfUpdate || oldColCount != _ColumnCount))
                 UpdateRtf();
+            else
+                Clear();
         }
 
         private void UpdateRtf()
@@ -49,13 +61,22 @@ namespace poetrain.UI.Forms
             var pronnunciations = _Source.PronnunciationList
                 .Take(Limit)
                 .ToArray();
-            var rowCount = (int)Math.Ceiling(pronnunciations.Count() / (float)_ColumnCount);
+            if (pronnunciations.Length == 0)
+            {
+                Clear();
+                return;
+            }
+            var rowCount = (int)Math.Ceiling(pronnunciations.Length / (float)_ColumnCount);
             var tableCells = new IRTFToken[_ColumnCount, rowCount];
             var col = 0;
             var row = 0;
             foreach (var pronnunc in pronnunciations)
             {
-                tableCells[col, row] = new PronnunciationRhyme(challengeRhyme, pronnunc);
+                var usedChallengePronnunc = challengeRhyme
+                    .MaxBy(challengePronnunc => challengePronnunc.ScoreRhyme(pronnunc).Value);
+                if (usedChallengePronnunc == null)
+                    continue;
+                tableCells[col, row] = new PronnunciationRhyme(usedChallengePronnunc, pronnunc);
                 col++;
                 if (col >= _ColumnCount)
                 {
@@ -63,21 +84,16 @@ namespace poetrain.UI.Forms
                     col = 0;
                 }
             }
+            // fill rest of cells with blank space
+            for (; row < rowCount; row++)
+            {
+                for (; col < _ColumnCount; col++)
+                    tableCells[col, row] = new RTFToken(ctx => { });
+            }
+
             var docBuilder = new RtfDocumentBuilder();
             docBuilder.Append(RichText.Table(tableCells, ColumnWidthTwips));
             Rtf = docBuilder.ToString();
-        }
-
-        protected override void OnControlAdded(ControlEventArgs e)
-        {
-            base.OnControlAdded(e);
-            var font = Font;
-            using (var g = CreateGraphics())
-            {
-                double sizePx = font.GetHeight();
-                var pxPerPt = sizePx / font.SizeInPoints;
-                _PxPerTwip = pxPerPt / 20;
-            }
         }
 
         protected override void OnSizeChanged(EventArgs e)
@@ -91,9 +107,9 @@ namespace poetrain.UI.Forms
         private class LogSource
         {
             public IEnumerable<IPronnunciation> PronnunciationList { get; }
-            public IPronnunciation ChallengeRhyme { get; }
+            public ITranscription ChallengeRhyme { get; }
 
-            public LogSource(IEnumerable<IPronnunciation> pronnuncationList, IPronnunciation challengeRhyme)
+            public LogSource(IEnumerable<IPronnunciation> pronnuncationList, ITranscription challengeRhyme)
             {
                 PronnunciationList = pronnuncationList;
                 ChallengeRhyme = challengeRhyme;
