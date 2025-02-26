@@ -28,7 +28,7 @@ namespace poetrain.UI.Rtf
             var docWriter = new WriterContext(docActions, _ColorTable);
             docWriter.WriteControlWord(CtrlWord.RtfVer);
             docWriter.WriteControlWord(CtrlWord.AnsiCharset);
-            docWriter.WriteControlWord(CtrlWord.DefaultFont);
+            docWriter.WriteControlWord(CtrlWord.DefaultFont, 0);
             docWriter.Write(_ColorTable);
             docActions.AddRange(_Body);
             var sb = new StringBuilder();
@@ -60,10 +60,7 @@ namespace poetrain.UI.Rtf
                 {
                     if (requireSpace && rawText.Length > 0)
                         sb.Append(" ");
-                    sb.Append(rawText
-                        .Replace("\\", "\\\\")
-                        .Replace("{", "\\{")
-                        .Replace("}", "\\{"));
+                    sb.Append(SanitizeRawText(rawText));
                 });
             }
 
@@ -134,6 +131,25 @@ namespace poetrain.UI.Rtf
                 {
                     sb.Append(";");
                 });
+            }
+
+            private string SanitizeRawText(string text)
+            {
+                var sb = new StringBuilder();
+                foreach (var c in text)
+                {
+                    if (c == '\\')
+                        sb.Append("\\\\");
+                    else if (c == '{')
+                        sb.Append("\\{");
+                    else if (c == '}')
+                        sb.Append("\\}");
+                    else if (c > 255)
+                        sb.Append($"\\u{(int)c}?"); // unicode is escaped in rtf ?? i hate life
+                    else
+                        sb.Append(c);
+                }
+                return sb.ToString();
             }
         }
     }

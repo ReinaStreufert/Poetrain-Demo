@@ -43,6 +43,15 @@ namespace poetrain.UI.Rtf
             });
         }
 
+        public static RTFToken BackgroundColor(Color color)
+        {
+            return new RTFToken(ctx =>
+            {
+                var colorIndex = ctx.ColorTable.GetOrAddColorIndex(color);
+                ctx.WriteControlWord("cb", colorIndex);
+            });
+        }
+
         public static IRTFToken Table(IRTFToken[,] cells, int columnWidthTwips)
         {
             return new RTFToken(ctx =>
@@ -54,7 +63,7 @@ namespace poetrain.UI.Rtf
                 {
                     ctx.WriteControlWord(CtrlWord.TableRow);
                     for (int col = 0; col < colCount; col++)
-                        ctx.WriteControlWord(CtrlWord.CellX, row * columnWidthTwips);
+                        ctx.WriteControlWord(CtrlWord.CellX, (col + 1) * columnWidthTwips);
                     for (int col = 0; col < colCount; col++)
                     {
                         ctx.WriteControlWord(CtrlWord.InTable);

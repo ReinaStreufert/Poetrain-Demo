@@ -14,10 +14,11 @@ namespace poetrain.UI.Rtf
         public int GetOrAddColorIndex(Color color)
         {
             if (_ColorIndexDict.TryGetValue(color, out int index)) 
-                return index;
-            _ColorIndexDict.Add(color, _ColorTable.Count);
+                return index + 1;
+            index = _ColorTable.Count;
+            _ColorIndexDict.Add(color, index);
             _ColorTable.Add(color);
-            return index;
+            return index + 1;
         }
 
         public void WriteTo(IRTFWriterContext ctx)

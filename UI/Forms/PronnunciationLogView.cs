@@ -11,11 +11,12 @@ namespace poetrain.UI.Forms
     public class PronnunciationLogView : RichTextBox
     {
         private const int ColumnWidthTwips = 3000;
-        private const int Limit = 1000;
+        private const int Limit = 100;
 
         public PronnunciationLogView()
         {
             ReadOnly = true;
+            BackColor = Color.Black;
         }
 
         private double _PxPerTwip = -1;
@@ -25,10 +26,10 @@ namespace poetrain.UI.Forms
         public void SetSource(IEnumerable<IPronnunciation> pronnunciationList, ITranscription challengeRhyme)
         {
             _Source = new LogSource(pronnunciationList, challengeRhyme);
-            Update(true);
+            UpdateUI(true);
         }
 
-        private void Update(bool forceRtfUpdate)
+        private void UpdateUI(bool forceRtfUpdate)
         {
             if (_Source == null || Parent == null)
             {
@@ -89,17 +90,24 @@ namespace poetrain.UI.Forms
             {
                 for (; col < _ColumnCount; col++)
                     tableCells[col, row] = new RTFToken(ctx => { });
+                col = 0;
             }
 
             var docBuilder = new RtfDocumentBuilder();
             docBuilder.Append(RichText.Table(tableCells, ColumnWidthTwips));
-            Rtf = docBuilder.ToString();
+            var generatedRtf = docBuilder.ToString();
+            Rtf = generatedRtf;
+            SelectAll();
+            SelectionFont = new Font("Segoe UI", 12f, FontStyle.Bold, GraphicsUnit.Point);
+            DeselectAll();
+            Application.DoEvents();
+            PerformLayout();
         }
 
         protected override void OnSizeChanged(EventArgs e)
         {
             base.OnSizeChanged(e);
-            Update(false);
+            UpdateUI(false);
         }
 
         private int TwipsFromPx(double px) => (int)Math.Round(px / _PxPerTwip);

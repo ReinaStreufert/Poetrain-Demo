@@ -29,16 +29,18 @@ namespace poetrain.UI.Rtf
             var challengeData = Challenge.Data;
             var rhymeData = Rhyme.Data;
             ctx.Write(RichText.PlainText());
+            ctx.Write(RichText.ForegroundColor(Color.White));
+            ctx.Write($"{Rhyme.Transcription.Word} / ");
 
             for (int i = 0; i < Rhyme.SyllableCount; i++)
             {
                 var rhymeSyll = rhymeData.Body[i];
                 Color textColor;
                 if (i + challengeRhymeOffset < 0)
-                    textColor = Color.Black;
+                    textColor = Color.White;
                 else
                 {
-                    var challengeSyll = rhymeData.Body[i + challengeRhymeOffset];
+                    var challengeSyll = challengeData.Body[i + challengeRhymeOffset];
                     var rhymeScore = i < Rhyme.SyllableCount - 1 ?
                         ISyllableData.ScoreRhyme(_Provider, challengeSyll, rhymeSyll) :
                         ISyllableData.ScoreRhyme(_Provider, challengeSyll, rhymeSyll, challengeData.Cap, rhymeData.Cap);
