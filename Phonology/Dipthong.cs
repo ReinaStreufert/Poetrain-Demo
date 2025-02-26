@@ -11,12 +11,14 @@ namespace poetrain.Phonology
     {
         public SemiSyllableType Type => SemiSyllableType.Vowel;
         public string Name { get; }
-        public string IPAString { get; }
+        public string IPASymbol { get; }
+        public string FriendlySymbol { get; }
 
-        public Dipthong(string name, string ipaString, ISemiSyllable startPhonym, ISemiSyllable endPhonym)
+        public Dipthong(string name, string ipaString, string friendlySymbol, ISemiSyllable startPhonym, ISemiSyllable endPhonym)
         {
             Name = name;
-            IPAString = ipaString;
+            IPASymbol = ipaString;
+            FriendlySymbol = friendlySymbol;
             _StartPhonym = startPhonym;
             _EndPhonym = endPhonym;
         }

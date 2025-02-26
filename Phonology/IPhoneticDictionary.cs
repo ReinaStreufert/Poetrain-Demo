@@ -261,7 +261,8 @@ namespace poetrain.Phonology
     {
         public SemiSyllableType Type { get; }
         public string Name { get; }
-        public string IPAString { get; }
+        public string FriendlySymbol { get; } // the dictionary uses the legacy ipa phonym for "g" which rtf will not display...
+        public string IPASymbol { get; }
         public float ScoreRhyme(ISemiSyllable semiSyllable);
         protected float ScoreRhyme(SemiSyllableType type, SlantCoords slantCoords);
 

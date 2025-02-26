@@ -21,7 +21,7 @@ namespace poetrain.Phonology
 
         public override string ToString()
         {
-            return $"{string.Concat(Body.Select(s => s.ToString()))}{string.Concat(Cap.Select(p => p.IPAString))}";
+            return $"{string.Concat(Body.Select(s => s.ToString()))}{string.Concat(Cap.Select(p => p.IPASymbol))}";
         }
     }
 
@@ -48,16 +48,16 @@ namespace poetrain.Phonology
             else if (Stress == SyllableStress.Secondary)
                 sb.Append("ˌ");
             WritePhonyms(sb, BeginConsonants);
-            sb.Append(Vowel.IPAString);
+            sb.Append(Vowel.IPASymbol);
             if (EndConsonant != null)
-                sb.Append(EndConsonant.IPAString);
+                sb.Append(EndConsonant.IPASymbol);
             return sb.ToString();
         }
 
         private void WritePhonyms(StringBuilder sb, ISemiSyllable[] phonymArr)
         {
             foreach (var phonym in phonymArr)
-                sb.Append(phonym.IPAString);
+                sb.Append(phonym.IPASymbol);
         }
     }
 }

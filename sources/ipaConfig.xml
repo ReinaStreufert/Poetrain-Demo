@@ -24,7 +24,7 @@
     <consonant name="(b)uy" ipa="b" slantCoords="0,1,1"/>
     <consonant name="(d)ye" ipa="d" slantCoords="2,1,1"/>
     <consonant name="(j)ust" ipa="dʒ" slantCoords="3,1,1"/>
-    <consonant name="(g)uy" ipa="g" slantCoords="5,1,1"/>
+    <consonant name="(g)uy" ipa="ɡ" symbol="g" slantCoords="5,1,1"/>
 
     <consonant name="(f)ind" ipa="f" slantCoords="0,2,0"/>
     <consonant name="pa(th)" ipa="θ" slantCoords="1,2,0"/>

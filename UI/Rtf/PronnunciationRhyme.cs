@@ -56,7 +56,7 @@ namespace poetrain.UI.Rtf
                         .Max();
                     ctx.Write(RichText.ForegroundColor(GetScoreColor(capPhonymScore)));
                 }
-                ctx.Write(capPhonym.IPAString);
+                ctx.Write(capPhonym.IPASymbol);
             }
         }
 
@@ -80,11 +80,11 @@ namespace poetrain.UI.Rtf
                         .Max();
                     ctx.Write(RichText.ForegroundColor(GetScoreColor(phonymScore)));
                 }
-                ctx.Write(phonym.IPAString);
+                ctx.Write(phonym.IPASymbol);
             }
             var vowelScore = challengeSyllable.Vowel.ScoreRhyme(rhymeSyllable.Vowel);
             ctx.Write(RichText.ForegroundColor(GetScoreColor(vowelScore)));
-            ctx.Write(rhymeSyllable.Vowel.IPAString);
+            ctx.Write(rhymeSyllable.Vowel.IPASymbol);
             if (rhymeSyllable.EndConsonant != null)
             {
                 if (challengeSyllable.EndConsonant != null)
@@ -93,7 +93,7 @@ namespace poetrain.UI.Rtf
                     ctx.Write(RichText.ForegroundColor(GetScoreColor(endConsScore)));
                 }
                 else ctx.Write(RichText.ForegroundColor(Color.Gray));
-                ctx.Write(rhymeSyllable.EndConsonant.IPAString);
+                ctx.Write(rhymeSyllable.EndConsonant.IPASymbol);
             }
         }
 

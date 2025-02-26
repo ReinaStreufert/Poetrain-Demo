@@ -12,14 +12,16 @@ namespace poetrain.Phonology
     {
         public SemiSyllableType Type { get; }
         public string Name { get; }
-        public string IPAString { get; }
+        public string IPASymbol { get; }
+        public string FriendlySymbol { get; }
         public SlantCoords SlantCoords { get; }
 
-        public MonoPhonym(string name, SemiSyllableType type, string iPAString, SlantCoords slantCoords, ISlantGrid slantGrid)
+        public MonoPhonym(string name, SemiSyllableType type, string iPAString, string friendlySymbol, SlantCoords slantCoords, ISlantGrid slantGrid)
         {
             Type = type;
             Name = name;
-            IPAString = iPAString;
+            IPASymbol = iPAString;
+            FriendlySymbol = friendlySymbol;
             SlantCoords = slantCoords;
             _SlantGrid = slantGrid;
         }

@@ -111,7 +111,7 @@ namespace poetrain.Data
             var allPhonyms = consonants
                 .Concat(monopthongs.Values)
                 .Concat(dipthongs);
-            var phonymPairs = allPhonyms.Select(p => new KeyValuePair<string, ISemiSyllable>(p.IPAString, p));
+            var phonymPairs = allPhonyms.Select(p => new KeyValuePair<string, ISemiSyllable>(p.IPASymbol, p));
             return new LocalizationPhonology(new IPALanguage(langCode, langName), dictSrcName, indexSrcName, phonymPairs, config);
         }
 
@@ -120,8 +120,9 @@ namespace poetrain.Data
             var attributes = phonymNode.Attributes;
             var name = attributes["name"]!.Value!;
             var ipa = attributes["ipa"]!.Value!;
-            var slantCoords = SlantCoords.Parse(attributes["slantCoords"]!.Value!);
-            return new MonoPhonym(name, type, ipa, slantCoords, grid);
+            var friendlySymbol = attributes["symbol"]?.Value! ?? ipa;
+            var slantCoords = SlantCoords.Parse(attributes["slantCoords"]?.Value!);
+            return new MonoPhonym(name, type, ipa, friendlySymbol, slantCoords, grid);
         }
 
         private static ISemiSyllable ParseDipthong(XmlElement dipthongNode, ImmutableDictionary<string, IMonoPhonym> monoPhonyms)
@@ -129,9 +130,10 @@ namespace poetrain.Data
             var attributes = dipthongNode.Attributes;
             var name = attributes["name"]!.Value!;
             var ipa = attributes["ipa"]!.Value!;
+            var friendlySymbol = attributes["symbol"]?.Value! ?? ipa;
             var start = monoPhonyms[attributes["start"]!.Value!];
             var end = monoPhonyms[attributes["end"]!.Value!];
-            return new Dipthong(name, ipa, start, end);
+            return new Dipthong(name, ipa, friendlySymbol, start, end);
         }
     }
 }
