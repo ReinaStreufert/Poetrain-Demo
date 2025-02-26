@@ -236,7 +236,7 @@ namespace poetrain.Phonology
             return sum / larger.Length;
         }
 
-        public static float ScoreEndConsonant<TSyllableData>(TSyllableData a, TSyllableData b) where TSyllableData : ISyllableData
+        private static float ScoreEndConsonant<TSyllableData>(TSyllableData a, TSyllableData b) where TSyllableData : ISyllableData
         {
             var basicScore = (a.EndConsonant == null || b.EndConsonant == null) ? (a.EndConsonant == null && b.EndConsonant == null ? 1f : 0f) :
                 a.EndConsonant.ScoreRhyme(b.EndConsonant);

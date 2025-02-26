@@ -35,21 +35,66 @@ namespace poetrain.UI.Rtf
             for (int i = 0; i < Rhyme.SyllableCount; i++)
             {
                 var rhymeSyll = rhymeData.Body[i];
-                Color textColor;
                 if (i + challengeRhymeOffset < 0)
-                    textColor = Color.White;
-                else
                 {
-                    var challengeSyll = challengeData.Body[i + challengeRhymeOffset];
-                    var rhymeScore = i < Rhyme.SyllableCount - 1 ?
-                        ISyllableData.ScoreRhyme(_Provider, challengeSyll, rhymeSyll) :
-                        ISyllableData.ScoreRhyme(_Provider, challengeSyll, rhymeSyll, challengeData.Cap, rhymeData.Cap);
-                    textColor = GetScoreColor(rhymeScore);
+                    ctx.Write(RichText.ForegroundColor(Color.Gray));
+                    ctx.Write(rhymeSyll.ToString());
+                    continue;
                 }
-                ctx.Write(RichText.ForegroundColor(textColor));
-                ctx.Write(rhymeSyll.ToString());
+                var challengeSyll = challengeData.Body[i + challengeRhymeOffset];
+                WriteSyllableRhyme(ctx, challengeSyll, rhymeSyll);
+
             }
-            ctx.Write(string.Concat(rhymeData.Cap.Select(p => p.IPAString)));
+            if (challengeData.Cap.Length == 0)
+                ctx.Write(RichText.ForegroundColor(Color.Gray));
+            foreach (var capPhonym in rhymeData.Cap)
+            {
+                if (challengeData.Cap.Length > 0)
+                {
+                    var capPhonymScore = challengeData.Cap
+                        .Select(capPhonym.ScoreRhyme)
+                        .Max();
+                    ctx.Write(RichText.ForegroundColor(GetScoreColor(capPhonymScore)));
+                }
+                ctx.Write(capPhonym.IPAString);
+            }
+        }
+
+        private void WriteSyllableRhyme(IRTFWriterContext ctx, SyllableData challengeSyllable, SyllableData rhymeSyllable)
+        {
+            if (rhymeSyllable.Stress != SyllableStress.Unstressed)
+            {
+                var stressMark = rhymeSyllable.Stress == SyllableStress.Primary ? "ˈ" : "ˈ";
+                var stressScore = ISyllableData.ScoreStress(challengeSyllable, rhymeSyllable);
+                ctx.Write(RichText.ForegroundColor(GetScoreColor(stressScore)));
+                ctx.Write(stressMark);
+            }
+            if (challengeSyllable.BeginConsonants.Length == 0)
+                RichText.ForegroundColor(Color.Gray);
+            foreach (var phonym in rhymeSyllable.BeginConsonants)
+            {
+                if (challengeSyllable.BeginConsonants.Length > 0)
+                {
+                    var phonymScore = challengeSyllable.BeginConsonants
+                        .Select(phonym.ScoreRhyme)
+                        .Max();
+                    ctx.Write(RichText.ForegroundColor(GetScoreColor(phonymScore)));
+                }
+                ctx.Write(phonym.IPAString);
+            }
+            var vowelScore = challengeSyllable.Vowel.ScoreRhyme(rhymeSyllable.Vowel);
+            ctx.Write(RichText.ForegroundColor(GetScoreColor(vowelScore)));
+            ctx.Write(rhymeSyllable.Vowel.IPAString);
+            if (rhymeSyllable.EndConsonant != null)
+            {
+                if (challengeSyllable.EndConsonant != null)
+                {
+                    var endConsScore = challengeSyllable.EndConsonant.ScoreRhyme(rhymeSyllable.EndConsonant);
+                    ctx.Write(RichText.ForegroundColor(GetScoreColor(endConsScore)));
+                }
+                else ctx.Write(RichText.ForegroundColor(Color.Gray));
+                ctx.Write(rhymeSyllable.EndConsonant.IPAString);
+            }
         }
 
         private Color GetScoreColor(float score)

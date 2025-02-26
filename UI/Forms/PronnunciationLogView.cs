@@ -10,8 +10,8 @@ namespace poetrain.UI.Forms
 {
     public class PronnunciationLogView : RichTextBox
     {
-        private const int ColumnWidthTwips = 3000;
-        private const int Limit = 100;
+        private const int ColumnWidthTwips = 4000;
+        private const int Limit = 500;
 
         public PronnunciationLogView()
         {
@@ -41,7 +41,7 @@ namespace poetrain.UI.Forms
                 var font = new Font("Segoe UI", 12f, GraphicsUnit.Point);
                 using (var g = CreateGraphics())
                 {
-                    double sizePx = font.GetHeight();
+                    double sizePx = font.GetHeight(g);
                     var pxPerPt = sizePx / font.SizeInPoints;
                     _PxPerTwip = pxPerPt / 20;
                 }
@@ -50,8 +50,6 @@ namespace poetrain.UI.Forms
             _ColumnCount = (int)Math.Floor(TwipsFromPx(Width) / (double)ColumnWidthTwips);
             if (_ColumnCount > 0 && (forceRtfUpdate || oldColCount != _ColumnCount))
                 UpdateRtf();
-            else
-                Clear();
         }
 
         private void UpdateRtf()
@@ -100,8 +98,6 @@ namespace poetrain.UI.Forms
             SelectAll();
             SelectionFont = new Font("Segoe UI", 12f, FontStyle.Bold, GraphicsUnit.Point);
             DeselectAll();
-            Application.DoEvents();
-            PerformLayout();
         }
 
         protected override void OnSizeChanged(EventArgs e)
