@@ -48,16 +48,16 @@ namespace poetrain.Phonology
             else if (Stress == SyllableStress.Secondary)
                 sb.Append("ˌ");
             WritePhonyms(sb, BeginConsonants);
-            sb.Append(Vowel.IPASymbol);
+            sb.Append(Vowel.FriendlySymbol);
             if (EndConsonant != null)
-                sb.Append(EndConsonant.IPASymbol);
+                sb.Append(EndConsonant.FriendlySymbol);
             return sb.ToString();
         }
 
         private void WritePhonyms(StringBuilder sb, ISemiSyllable[] phonymArr)
         {
             foreach (var phonym in phonymArr)
-                sb.Append(phonym.IPASymbol);
+                sb.Append(phonym.FriendlySymbol);
         }
     }
 }
