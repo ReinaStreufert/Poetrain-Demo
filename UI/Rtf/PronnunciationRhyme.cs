@@ -70,7 +70,7 @@ namespace poetrain.UI.Rtf
                 ctx.Write(stressMark);
             }
             if (challengeSyllable.BeginConsonants.Length == 0)
-                RichText.ForegroundColor(Color.Gray);
+                ctx.Write(RichText.ForegroundColor(Color.Gray));
             foreach (var phonym in rhymeSyllable.BeginConsonants)
             {
                 if (challengeSyllable.BeginConsonants.Length > 0)
