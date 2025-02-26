@@ -96,7 +96,7 @@ namespace poetrain.UI.Forms
             var generatedRtf = docBuilder.ToString();
             Rtf = generatedRtf;
             SelectAll();
-            SelectionFont = new Font("Segoe UI", 12f, FontStyle.Bold, GraphicsUnit.Point);
+            SelectionFont = new Font("Segoe UI", 12f, GraphicsUnit.Point);
             DeselectAll();
         }
 

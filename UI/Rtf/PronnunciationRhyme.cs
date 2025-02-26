@@ -99,9 +99,18 @@ namespace poetrain.UI.Rtf
 
         private Color GetScoreColor(float score)
         {
-            var green = (int)Math.Round(score * 255);
-            var red = (int)Math.Round((1f - score) * 255);
-            return Color.FromArgb(255, red, green, 0);
+            float redF;
+            float greenF;
+            if (score < 0.5f)
+            {
+                redF = 1f;
+                greenF = score * 2f;
+            } else
+            {
+                greenF = 1f;
+                redF = (1f - score) * 2f;
+            }
+            return Color.FromArgb(255, (int)Math.Round(redF * 255), (int)Math.Round(greenF * 255f), 0);
         }
     }
 }
